@@ -1,18 +1,10 @@
-import {
-  Entity,
-  PrimaryKey,
-  Property,
-  ManyToOne,
-  Index,
-} from '@mikro-orm/core';
+import { Entity, Property, ManyToOne, Index } from '@mikro-orm/core';
 import { Order } from './order.entity';
+import { BaseEntity } from 'src/util/entities/base.entity';
 
 @Entity()
-@Index({ properties: ['order'] })
-export class OrderItem {
-  @PrimaryKey()
-  id!: number;
-
+@Index({ properties: ['companyId', 'order'] })
+export class OrderItem extends BaseEntity {
   @ManyToOne(() => Order)
   order!: Order;
 
@@ -22,6 +14,16 @@ export class OrderItem {
   @Property()
   quantity!: number;
 
-  @Property({ nullable: true })
+  @Property({ type: 'decimal', precision: 10, scale: 2 })
+  unitPrice!: number; // Snapshot price at time of order
+
+  @Property({ type: 'decimal', precision: 10, scale: 2 })
+  totalPrice!: number; // quantity * unitPrice
+
+  @Property({ nullable: true, type: 'text' })
   notes?: string;
+
+  // Link to kitchen items for this order item
+  @Property({ nullable: true })
+  kitchenItemId?: number;
 }
