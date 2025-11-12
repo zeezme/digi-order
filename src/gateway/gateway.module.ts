@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { GatewayService } from './gateway.service';
 import { TableModule } from 'src/modules/table/table.module';
 import { OrderModule } from 'src/modules/order/order.module';
 import { MenuModule } from 'src/modules/menu/menu.module';
 import { KitchenModule } from 'src/modules/kitchen/kitchen.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
-import { KitchenController } from './controllers/kitchen.controller';
+import { KDSKitchenController } from './modules/kds-kitchen/kds-kitchen.controller';
+import { KitchenGatewayService } from './modules/kds-kitchen/kds-kitchen.service';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { KitchenController } from './controllers/kitchen.controller';
     KitchenModule,
     NotificationModule,
   ],
-  controllers: [KitchenController],
-  providers: [GatewayService],
+  controllers: [KDSKitchenController],
+  providers: [KitchenGatewayService],
 })
 export class GatewayModule {}

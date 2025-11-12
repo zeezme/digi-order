@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { KitchenService } from '../../modules/kitchen/kitchen.service';
 import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
+import { KitchenService } from 'src/modules/kitchen/kitchen.service';
 
 @Injectable()
 export class KitchenGatewayService {

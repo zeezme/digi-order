@@ -14,7 +14,8 @@ export abstract class BaseRepository<
 > extends EntityRepository<T> {
   /** Optional callback triggered when a database operation fails, used for audit logging */
   private auditCallback?: (
-    error: Error,
+    status: 'success' | 'error',
+    action: string,
     context?: Record<string, any>,
   ) => Promise<void>;
 
@@ -35,7 +36,7 @@ export abstract class BaseRepository<
     super(em, entityClass);
 
     if (auditRepo && entityType) {
-      this.setAuditCallback(async (error, context) => {
+      this.setAuditCallback(async (status, action, context) => {
         const companyId = Number(
           (context?.data as { companyId?: unknown })?.companyId ?? 0,
         );
@@ -43,10 +44,9 @@ export abstract class BaseRepository<
         await auditRepo.logAction({
           companyId,
           entityType,
-          action: 'ERROR',
+          action: action.toUpperCase(),
           newValues: {
-            message: error.message,
-            stack: error.stack,
+            status,
             context,
           },
         });
@@ -60,9 +60,27 @@ export abstract class BaseRepository<
    * @param callback - Function called when a database operation fails.
    */
   public setAuditCallback(
-    callback: (error: Error, context?: Record<string, any>) => Promise<void>,
+    callback: (
+      status: 'success' | 'error',
+      action: string,
+      context?: Record<string, any>,
+    ) => Promise<void>,
   ) {
     this.auditCallback = callback;
+  }
+
+  private async handleAudit(
+    status: 'success' | 'error',
+    action: string,
+    context: Record<string, any>,
+  ) {
+    if (!this.auditCallback) return;
+
+    try {
+      await this.auditCallback(status, action, context);
+    } catch (auditError) {
+      console.error(`[Audit Logging Failed: ${action}]`, auditError);
+    }
   }
 
   /**
@@ -84,18 +102,13 @@ export abstract class BaseRepository<
    * @param context - Optional context for the audit log.
    * @throws The original error after logging.
    */
-  private async handleError(error: Error, context: Record<string, any>) {
-    const entityName = this.getEntityName();
-    console.error(`[${entityName}] Database operation failed:`, error);
-
-    if (this.auditCallback) {
-      try {
-        await this.auditCallback(error, context);
-      } catch (auditError) {
-        console.error('[Audit Logging Failed]', auditError);
-      }
-    }
-
+  private async handleError(
+    error: Error,
+    action: string,
+    context: Record<string, any>,
+  ) {
+    console.error(`[${this.getEntityName()}] Operation failed:`, error);
+    await this.handleAudit('error', action, { ...context, error });
     throw error;
   }
 
@@ -143,10 +156,15 @@ export abstract class BaseRepository<
   async createEntity(data: EntityData<T>): Promise<T> {
     try {
       const entity = this.create(data as any);
+
       await this.getEntityManager().persistAndFlush(entity);
+
+      await this.handleAudit('success', 'create', { data, entity });
+
       return entity;
     } catch (error) {
-      await this.handleError(error as Error, { action: 'create', data });
+      await this.handleError(error as Error, 'create', { data });
+
       throw error;
     }
   }
@@ -162,10 +180,15 @@ export abstract class BaseRepository<
   async updateEntity(entity: T, data: Partial<T>): Promise<T> {
     try {
       wrap(entity).assign(data as any);
+
       await this.getEntityManager().flush();
+
+      await this.handleAudit('success', 'update', { data, entity });
+
       return entity;
     } catch (error) {
-      await this.handleError(error as Error, { action: 'update', data });
+      await this.handleError(error as Error, 'update', { data });
+
       throw error;
     }
   }
@@ -179,8 +202,11 @@ export abstract class BaseRepository<
   async deleteEntity(entity: T): Promise<void> {
     try {
       await this.getEntityManager().removeAndFlush(entity);
+
+      await this.handleAudit('success', 'delete', { entity });
     } catch (error) {
-      await this.handleError(error as Error, { action: 'delete', entity });
+      await this.handleError(error as Error, 'delete', { entity });
+
       throw error;
     }
   }
@@ -195,11 +221,15 @@ export abstract class BaseRepository<
   async deleteById(id: number | string): Promise<boolean> {
     try {
       const entity = await this.findById(id);
+
       if (!entity) return false;
+
       await this.deleteEntity(entity);
+
       return true;
     } catch (error) {
-      await this.handleError(error as Error, { action: 'deleteById', id });
+      await this.handleError(error as Error, 'delete', { id });
+
       throw error;
     }
   }
@@ -222,6 +252,7 @@ export abstract class BaseRepository<
    */
   async exists(where: FilterQuery<T>): Promise<boolean> {
     const count = await this.count(where);
+
     return count > 0;
   }
 }

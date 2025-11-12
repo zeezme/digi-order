@@ -1,5 +1,5 @@
+import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
 import { z } from 'zod';
-import { KitchenItemStatus } from '../entities/kitchen-item.entity';
 
 const kitchenItemStatusSchema = z.enum(
   Object.values(KitchenItemStatus) as [

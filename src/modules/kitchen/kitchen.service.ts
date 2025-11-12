@@ -1,4 +1,3 @@
-// src/kitchen/kitchen-item.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { KitchenItemRepository } from './kitchen.repository';
 import { KitchenItemStatus } from './entities/kitchen-item.entity';

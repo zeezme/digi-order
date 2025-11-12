@@ -6,12 +6,15 @@ import {
   Delete,
   Param,
   Body,
+  UseGuards,
 } from '@nestjs/common';
+import { SupabaseAuthGuard } from 'src/gateway/auth/supabase.guard';
 import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
 import { KitchenService } from 'src/modules/kitchen/kitchen.service';
 
-@Controller('kitchen')
-export class KitchenController {
+@Controller('kds-kitchen')
+@UseGuards(SupabaseAuthGuard)
+export class KDSKitchenController {
   constructor(private readonly kitchenService: KitchenService) {}
 
   @Get('items')
