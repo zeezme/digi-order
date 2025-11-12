@@ -11,7 +11,13 @@ import {
 import { SupabaseAuthGuard } from 'src/gateway/auth/supabase.guard';
 import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
 import { KitchenService } from 'src/modules/kitchen/kitchen.service';
-
+import {
+  CreateKitchenItemDto,
+  createKitchenItemSchema,
+  UpdateKitchenItemDto,
+  updateKitchenItemSchema,
+} from './kitchen-item.schema';
+import { ZodValidated } from '@src/util/decorators/zod-validated.decorator';
 @Controller('kds-kitchen')
 @UseGuards(SupabaseAuthGuard)
 export class KDSKitchenController {
@@ -38,19 +44,15 @@ export class KDSKitchenController {
   }
 
   @Post('items')
-  createItem(
-    @Body('orderId') orderId: number,
-    @Body('menuItemId') menuItemId: number,
-  ) {
-    return this.kitchenService.create(orderId, menuItemId);
+  @ZodValidated(createKitchenItemSchema)
+  createItem(@Body() dto: CreateKitchenItemDto) {
+    return this.kitchenService.create(dto.orderId, dto.menuItemId);
   }
 
   @Patch('items/:id/status')
-  updateStatus(
-    @Param('id') id: number,
-    @Body('status') status: KitchenItemStatus,
-  ) {
-    return this.kitchenService.updateStatus(+id, status);
+  @ZodValidated(updateKitchenItemSchema)
+  updateStatus(@Param('id') id: number, @Body() dto: UpdateKitchenItemDto) {
+    return this.kitchenService.updateStatus(+id, dto.status!);
   }
 
   @Delete('items/:id')

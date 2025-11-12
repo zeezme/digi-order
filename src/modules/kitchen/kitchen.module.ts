@@ -20,6 +20,6 @@ import { KitchenItemRepository } from './kitchen.repository';
       inject: [SqlEntityManager, AuditRepository],
     },
   ],
-  exports: [KitchenItemRepository],
+  exports: [KitchenItemRepository, KitchenService],
 })
 export class KitchenModule {}

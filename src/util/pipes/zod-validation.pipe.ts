@@ -1,18 +1,25 @@
-// src/common/pipes/zod-validation.pipe.ts
+// src/util/pipes/zod-validation.pipe.ts
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
-import { ZodObject, ZodRawShape } from 'zod';
+import { ZodType, infer as ZodInfer } from 'zod';
 
 @Injectable()
-export class ZodValidationPipe<T extends ZodRawShape> implements PipeTransform {
-  constructor(private schema: ZodObject<T>) {}
+export class ZodValidationPipe<T extends ZodType> implements PipeTransform {
+  constructor(private readonly schema: T) {}
 
-  transform(value: unknown) {
+  transform(value: unknown): ZodInfer<T> {
     const result = this.schema.safeParse(value);
 
     if (!result.success) {
-      throw new BadRequestException(result.error.issues);
+      const formattedErrors = result.error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        message: issue.message,
+      }));
+      throw new BadRequestException({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
 
-    return result.data;
+    return result.data as ZodInfer<T>;
   }
 }

@@ -1,5 +1,5 @@
 import { Entity, Property, Index } from '@mikro-orm/core';
-import { BaseEntity } from 'src/util/entities/base.entity';
+import { BaseEntity } from '@src/util/entities/base.entity';
 @Entity()
 @Index({ properties: ['companyId', 'name'] })
 @Index({ properties: ['companyId', 'isAvailable', 'deletedAt'] })

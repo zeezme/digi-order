@@ -6,9 +6,11 @@ import { KitchenModule } from 'src/modules/kitchen/kitchen.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 import { KDSKitchenController } from './modules/kds-kitchen/kds-kitchen.controller';
 import { KitchenGatewayService } from './modules/kds-kitchen/kds-kitchen.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MenuModule,
     OrderModule,
     TableModule,

@@ -6,8 +6,8 @@ import {
   Index,
   Cascade,
 } from '@mikro-orm/core';
-import { OrderItem } from './order-item.entity.js';
-import { BaseEntity } from 'src/util/entities/base.entity.js';
+import { OrderItem } from './order-item.entity';
+import { BaseEntity } from '@src/util/entities/base.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
