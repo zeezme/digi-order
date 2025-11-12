@@ -18,13 +18,17 @@ import {
   updateKitchenItemSchema,
 } from './kitchen-item.schema';
 import { ZodValidated } from '@src/util/decorators/zod-validated.decorator';
+import { CurrentUser } from '@src/util/decorators/current-user.decorator';
+import { User } from '@supabase/supabase-js';
+
 @Controller('kds-kitchen')
 @UseGuards(SupabaseAuthGuard)
 export class KDSKitchenController {
   constructor(private readonly kitchenService: KitchenService) {}
 
   @Get('items')
-  getAllItems() {
+  getAllItems(@CurrentUser() user: User) {
+    console.log(user);
     return this.kitchenService.findAll();
   }
 
