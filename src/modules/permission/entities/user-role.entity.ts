@@ -1,24 +1,36 @@
-import { Entity, Property, Index, PrimaryKey } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  Index,
+  PrimaryKey,
+  ManyToOne,
+} from '@mikro-orm/core';
+import { Role } from './role.entity';
+import { User } from '@src/modules/user/entities/user.entity';
+import { Company } from '@src/modules/company/entities/company.entity';
 
 @Entity()
 @Index({
-  properties: ['userId', 'companyId', 'roleId'],
+  properties: ['user', 'company', 'role'],
   name: 'unique_user_company_role',
 })
-@Index({ properties: ['userId', 'companyId', 'deletedAt'] })
-@Index({ properties: ['companyId', 'roleId'] })
+@Index({ properties: ['user', 'company', 'deletedAt'] })
+@Index({ properties: ['company', 'role'] })
 export class UserRole {
   @PrimaryKey()
   id!: number;
 
-  @Property()
-  userId!: string; // Supabase UUID
+  @ManyToOne(() => User, {
+    fieldName: 'user_id',
+    referenceColumnName: 'supabase_id',
+  })
+  user!: User;
 
-  @Property()
-  companyId!: number;
+  @ManyToOne(() => Company)
+  company!: Company;
 
-  @Property()
-  roleId!: number;
+  @ManyToOne(() => Role)
+  role!: Role;
 
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date();

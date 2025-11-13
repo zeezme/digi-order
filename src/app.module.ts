@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CompanyModule } from './modules/company/company.module';
 import { PermissionModule } from './modules/permission/permission.module';
+import { UserModule } from './modules/user/user.module';
 import mikroOrmConfig from './mikro-orm.config';
 
 @Module({
@@ -27,6 +28,7 @@ import mikroOrmConfig from './mikro-orm.config';
     NotificationModule,
     CompanyModule,
     PermissionModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

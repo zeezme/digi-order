@@ -1,5 +1,14 @@
-import { Entity, Property, Index } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  Index,
+  OneToMany,
+  Collection,
+} from '@mikro-orm/core';
+import { KitchenItem } from '@src/modules/kitchen/entities/kitchen-item.entity';
+import { OrderItem } from '@src/modules/order/entities/order-item.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
+
 @Entity()
 @Index({ properties: ['companyId', 'name'] })
 @Index({ properties: ['companyId', 'isAvailable', 'deletedAt'] })
@@ -13,6 +22,12 @@ export class MenuItem extends BaseEntity {
 
   @Property({ type: 'decimal', precision: 10, scale: 2 })
   price!: number;
+
+  @OneToMany(() => OrderItem, (item) => item.menuItem)
+  orderItems = new Collection<OrderItem>(this);
+
+  @OneToMany(() => KitchenItem, (item) => item.menuItem)
+  kitchenItems = new Collection<KitchenItem>(this);
 
   @Property({ default: true })
   isAvailable: boolean = true;

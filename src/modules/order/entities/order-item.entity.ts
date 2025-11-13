@@ -1,6 +1,8 @@
-import { Entity, Property, ManyToOne, Index } from '@mikro-orm/core';
+import { Entity, Property, ManyToOne, Index, OneToOne } from '@mikro-orm/core';
 import { Order } from './order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
+import { MenuItem } from '@src/modules/menu/entities/menu-item.entity';
+import { KitchenItem } from '@src/modules/kitchen/entities/kitchen-item.entity';
 
 @Entity()
 @Index({ properties: ['companyId', 'order'] })
@@ -8,22 +10,25 @@ export class OrderItem extends BaseEntity {
   @ManyToOne(() => Order)
   order!: Order;
 
-  @Property()
-  menuItemId!: number;
+  @ManyToOne(() => MenuItem)
+  menuItem!: MenuItem;
 
   @Property()
   quantity!: number;
 
   @Property({ type: 'decimal', precision: 10, scale: 2 })
-  unitPrice!: number; // Snapshot price at time of order
+  unitPrice!: number;
 
   @Property({ type: 'decimal', precision: 10, scale: 2 })
-  totalPrice!: number; // quantity * unitPrice
+  totalPrice!: number;
 
   @Property({ nullable: true, type: 'text' })
   notes?: string;
 
-  // Link to kitchen items for this order item
-  @Property({ nullable: true })
-  kitchenItemId?: number;
+  @OneToOne(() => KitchenItem, {
+    fieldName: 'kitchen_item_id',
+    nullable: true,
+    orphanRemoval: false,
+  })
+  kitchenItem?: KitchenItem;
 }

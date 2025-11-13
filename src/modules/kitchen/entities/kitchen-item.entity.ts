@@ -1,4 +1,7 @@
-import { Entity, Property, Index } from '@mikro-orm/core';
+import { Entity, Property, Index, ManyToOne, OneToOne } from '@mikro-orm/core';
+import { MenuItem } from '@src/modules/menu/entities/menu-item.entity';
+import { OrderItem } from '@src/modules/order/entities/order-item.entity';
+import { Order } from '@src/modules/order/entities/order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
 
 export enum KitchenItemStatus {
@@ -11,14 +14,20 @@ export enum KitchenItemStatus {
 
 @Entity()
 @Index({ properties: ['companyId', 'status'] })
-@Index({ properties: ['companyId', 'orderId'] })
+@Index({ properties: ['companyId', 'order'] }) // 'orderId' mudou para 'order'
 @Index({ properties: ['companyId', 'deletedAt'] })
 export class KitchenItem extends BaseEntity {
-  @Property()
-  orderId!: number;
+  @ManyToOne(() => Order)
+  order!: Order;
 
-  @Property()
-  menuItemId!: number;
+  @ManyToOne(() => MenuItem)
+  menuItem!: MenuItem;
+
+  @OneToOne(() => OrderItem, (item) => item.kitchenItem, {
+    mappedBy: 'kitchenItem',
+    nullable: true,
+  })
+  orderItem?: OrderItem;
 
   @Property({ type: 'string', default: KitchenItemStatus.PENDING })
   @Index()

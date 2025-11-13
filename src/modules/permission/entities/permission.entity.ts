@@ -9,7 +9,7 @@ export class Permission {
   key!: string;
 
   @Property()
-  description!: string; // ex: "Criar empresa"
+  description!: string;
 
   @Property({ onCreate: () => new Date() })
   createdAt!: Date;

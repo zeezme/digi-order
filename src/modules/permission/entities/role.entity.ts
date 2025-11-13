@@ -5,8 +5,10 @@ import {
   PrimaryKey,
   ManyToMany,
   Collection,
+  OneToMany,
 } from '@mikro-orm/core';
 import { Permission } from './permission.entity';
+import { UserRole } from './user-role.entity';
 
 export enum RoleType {
   ADMIN = 'admin',
@@ -33,4 +35,7 @@ export class Role {
 
   @ManyToMany(() => Permission)
   permissionEntities = new Collection<Permission>(this);
+
+  @OneToMany(() => UserRole, (userRole) => userRole.role)
+  userRoles = new Collection<UserRole>(this);
 }

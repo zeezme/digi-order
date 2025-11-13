@@ -5,9 +5,13 @@ import {
   Collection,
   Index,
   Cascade,
+  ManyToOne,
+  OneToOne,
 } from '@mikro-orm/core';
-import { OrderItem } from './order-item.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
+import { Table } from '@src/modules/table/entities/table.entity';
+import { KitchenItem } from '@src/modules/kitchen/entities/kitchen-item.entity';
+import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -19,12 +23,21 @@ export enum OrderStatus {
   CANCELLED = 'cancelled',
 }
 @Entity()
-@Index({ properties: ['companyId', 'tableId', 'deletedAt'] })
+@Index({ properties: ['companyId', 'table', 'deletedAt'] }) // 'tableId' mudou para 'table'
 @Index({ properties: ['companyId', 'status', 'deletedAt'] })
 @Index({ properties: ['companyId', 'createdAt'] })
 export class Order extends BaseEntity {
-  @Property()
-  tableId!: number;
+  /**
+   * Muitos-para-Um: Muitos pedidos podem pertencer a uma mesa.
+   */
+  @ManyToOne(() => Table)
+  table!: Table;
+
+  /**
+   * Um-para-Um (Inverso): Referência de volta se este pedido é o 'currentOrder' de uma mesa.
+   */
+  @OneToOne(() => Table, (table) => table.currentOrder, { nullable: true })
+  currentTable?: Table;
 
   @Property({ type: 'string', default: OrderStatus.PENDING })
   @Index()
@@ -34,6 +47,9 @@ export class Order extends BaseEntity {
     cascade: [Cascade.PERSIST, Cascade.REMOVE],
   })
   items = new Collection<OrderItem>(this);
+
+  @OneToMany(() => KitchenItem, (item) => item.order)
+  kitchenItems = new Collection<KitchenItem>(this);
 
   @Property({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   subtotal: number = 0;
@@ -59,7 +75,6 @@ export class Order extends BaseEntity {
   @Property({ nullable: true, type: 'text' })
   notes?: string;
 
-  // Waiter/server who took the order
   @Property({ nullable: true })
-  serverId?: number; // userId
+  serverId?: number;
 }

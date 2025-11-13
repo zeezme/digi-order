@@ -1,4 +1,12 @@
-import { Entity, Index, Property } from '@mikro-orm/core';
+import {
+  Entity,
+  Index,
+  Property,
+  OneToOne,
+  OneToMany,
+  Collection,
+} from '@mikro-orm/core';
+import { Order } from '@src/modules/order/entities/order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
 
 @Entity()
@@ -11,14 +19,21 @@ export class Table extends BaseEntity {
   @Property({ default: false })
   isOccupied: boolean = false;
 
-  @Property({ nullable: true })
-  currentOrderId?: number;
+  @OneToOne(() => Order, {
+    fieldName: 'current_order_id',
+    nullable: true,
+    orphanRemoval: false,
+  })
+  currentOrder?: Order;
+
+  @OneToMany(() => Order, (order) => order.table)
+  orders = new Collection<Order>(this);
 
   @Property({ default: 4 })
   capacity: number = 4;
 
   @Property({ nullable: true })
-  section?: string; // dining area section
+  section?: string;
 
   @Property({ default: true })
   isActive: boolean = true;
@@ -27,5 +42,5 @@ export class Table extends BaseEntity {
   occupiedAt?: Date;
 
   @Property({ nullable: true })
-  occupiedBy?: number; // userId of waiter who seated the table
+  occupiedBy?: number;
 }
