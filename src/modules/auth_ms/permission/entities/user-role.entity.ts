@@ -6,8 +6,8 @@ import {
   ManyToOne,
 } from '@mikro-orm/core';
 import { Role } from './role.entity';
-import { User } from '@src/modules/user/entities/user.entity';
-import { Company } from '@src/modules/company/entities/company.entity';
+import { User } from '../../user/entities/user.entity';
+import { Company } from '../../company/entities/company.entity';
 
 @Entity()
 @Index({

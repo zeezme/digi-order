@@ -1,7 +1,7 @@
 import { Entity, Property, Index } from '@mikro-orm/core';
 import { BaseEntity } from '@src/util/entities/base.entity';
 import { Collection, OneToMany } from '@mikro-orm/core';
-import { UserRole } from '@src/modules/permission/entities/user-role.entity';
+import { UserRole } from '../../permission/entities/user-role.entity';
 
 @Entity()
 @Index({ properties: ['companyId', 'supabaseId'] })

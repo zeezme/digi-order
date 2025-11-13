@@ -5,8 +5,8 @@ import {
   OneToMany,
   Collection,
 } from '@mikro-orm/core';
-import { KitchenItem } from '@src/modules/kitchen/entities/kitchen-item.entity';
-import { OrderItem } from '@src/modules/order/entities/order-item.entity';
+import { KitchenItem } from '@src/modules/core_ms/kitchen/entities/kitchen-item.entity';
+import { OrderItem } from '@src/modules/core_ms/order/entities/order-item.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
 
 @Entity()

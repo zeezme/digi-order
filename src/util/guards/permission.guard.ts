@@ -6,14 +6,15 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { PermissionService } from '@src/modules/permission/services/permission.service';
-import { RoleType } from '@src/modules/permission/entities/role.entity';
+
 import {
   PermissionKey,
   PERMISSIONS_METADATA_KEY,
 } from '../decorators/require-permission.decorator';
 import { ROLES_METADATA_KEY } from '../decorators/require-role.decorator';
-import { ROLES } from '@src/modules/permission/permission.config';
+import { PermissionService } from '@src/modules/auth_ms/permission/services/permission.service';
+import { RoleType } from '@src/modules/auth_ms/permission/entities/role.entity';
+import { ROLES } from '@src/modules/auth_ms/permission/permission.config';
 
 /**
  * ### Guard responsible for validating a user's access based on
@@ -115,7 +116,7 @@ export class PermissionGuard implements CanActivate {
       userId,
       companyId,
     );
-    const roleIds = userRoles.map((ur) => ur.roleId);
+    const roleIds = userRoles.map((ur) => ur.role.id);
     if (roleIds.length === 0) return false;
 
     const roles = await this.permissionService.roleRepository.findAllEntities({

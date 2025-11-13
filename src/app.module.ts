@@ -2,18 +2,18 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { GatewayModule } from './gateway/gateway.module';
-import { MenuModule } from './modules/menu/menu.module';
-import { OrderModule } from './modules/order/order.module';
-import { TableModule } from './modules/table/table.module';
-import { KitchenModule } from './modules/kitchen/kitchen.module';
-import { NotificationModule } from './modules/notification/notification.module';
+import { MenuModule } from './modules/core_ms/menu/menu.module';
+import { OrderModule } from './modules/core_ms/order/order.module';
+import { TableModule } from './modules/core_ms/table/table.module';
+import { KitchenModule } from './modules/core_ms/kitchen/kitchen.module';
+import { NotificationModule } from './modules/notification_ms/notification.module';
 import { AuthModule } from './gateway/auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CompanyModule } from './modules/company/company.module';
-import { PermissionModule } from './modules/permission/permission.module';
-import { UserModule } from './modules/user/user.module';
 import mikroOrmConfig from './mikro-orm.config';
+import { CompanyModule } from './modules/auth_ms/company/company.module';
+import { PermissionModule } from './modules/auth_ms/permission/permission.module';
+import { UserModule } from './modules/auth_ms/user/user.module';
 
 @Module({
   imports: [

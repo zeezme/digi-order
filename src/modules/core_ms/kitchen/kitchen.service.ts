@@ -8,8 +8,8 @@ export class KitchenService {
 
   async create(orderId: number, menuItemId: number, companyId: number) {
     return this.kitchenItemRepository.createEntity({
-      orderId,
-      menuItemId,
+      order: orderId,
+      menuItem: menuItemId,
       status: KitchenItemStatus.PENDING,
       companyId,
     });

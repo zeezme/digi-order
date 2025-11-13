@@ -1,8 +1,8 @@
 import { Entity, Property, ManyToOne, Index, OneToOne } from '@mikro-orm/core';
 import { Order } from './order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
-import { MenuItem } from '@src/modules/menu/entities/menu-item.entity';
-import { KitchenItem } from '@src/modules/kitchen/entities/kitchen-item.entity';
+import { MenuItem } from '@src/modules/core_ms/menu/entities/menu-item.entity';
+import { KitchenItem } from '@src/modules/core_ms/kitchen/entities/kitchen-item.entity';
 
 @Entity()
 @Index({ properties: ['companyId', 'order'] })

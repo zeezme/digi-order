@@ -27,7 +27,11 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
     userId: string,
     companyId: number,
   ): Promise<UserRole[]> {
-    return this.findAllEntities({ userId, companyId, deletedAt: null });
+    return this.findAllEntities({
+      user: { supabaseId: userId },
+      company: companyId,
+      deletedAt: null,
+    });
   }
 
   async findUserRole(
@@ -35,7 +39,12 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
     companyId: number,
     roleId: number,
   ): Promise<UserRole | null> {
-    return this.findOneBy({ userId, companyId, roleId, deletedAt: null });
+    return this.findOneBy({
+      user: { supabaseId: userId },
+      company: companyId,
+      role: roleId,
+      deletedAt: null,
+    });
   }
 
   async hasRole(
@@ -43,7 +52,12 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
     companyId: number,
     roleId: number,
   ): Promise<boolean> {
-    return this.exists({ userId, companyId, roleId, deletedAt: null });
+    return this.exists({
+      user: { supabaseId: userId },
+      company: companyId,
+      role: roleId,
+      deletedAt: null,
+    });
   }
 }
 

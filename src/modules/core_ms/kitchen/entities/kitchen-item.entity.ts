@@ -1,7 +1,7 @@
 import { Entity, Property, Index, ManyToOne, OneToOne } from '@mikro-orm/core';
-import { MenuItem } from '@src/modules/menu/entities/menu-item.entity';
-import { OrderItem } from '@src/modules/order/entities/order-item.entity';
-import { Order } from '@src/modules/order/entities/order.entity';
+import { MenuItem } from '@src/modules/core_ms/menu/entities/menu-item.entity';
+import { OrderItem } from '@src/modules/core_ms/order/entities/order-item.entity';
+import { Order } from '@src/modules/core_ms/order/entities/order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
 
 export enum KitchenItemStatus {

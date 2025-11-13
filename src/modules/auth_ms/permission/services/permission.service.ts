@@ -38,7 +38,11 @@ export class PermissionService {
     if (exists) {
       throw new ConflictException('User already has this role in this company');
     }
-    return this.userRoleRepository.createEntity({ userId, companyId, roleId });
+    return this.userRoleRepository.createEntity({
+      user: { supabaseId: userId },
+      company: companyId,
+      role: roleId,
+    });
   }
 
   async removeRole(userId: string, companyId: number, roleId: number) {
@@ -70,7 +74,7 @@ export class PermissionService {
     companyId: number,
   ): Promise<string[]> {
     const userRoles = await this.getUserRoles(userId, companyId);
-    const roleIds = userRoles.map((ur) => ur.roleId);
+    const roleIds = userRoles.map((ur) => ur.role.id);
 
     const roles = await this.roleRepository.findAllEntities({
       id: { $in: roleIds },

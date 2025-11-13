@@ -1,4 +1,3 @@
-// src/modules/kitchen/kitchen.repository.ts
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from 'src/util/repository/base.repository';
 import { KitchenItem } from './entities/kitchen-item.entity';
@@ -21,7 +20,7 @@ export class KitchenItemRepository extends BaseRepository<KitchenItem> {
   }
 
   async findByOrderIdAndCompany(orderId: number, companyId: number) {
-    return this.findAllEntities({ orderId, companyId });
+    return this.findAllEntities({ order: orderId, companyId });
   }
 
   async findByStatusAndCompany(status: KitchenItemStatus, companyId: number) {

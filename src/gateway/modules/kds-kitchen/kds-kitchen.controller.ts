@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import { SupabaseAuthGuard } from '@src/util/guards/supabase.guard';
 import { PermissionGuard } from '@src/util/guards/permission.guard';
-import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
-import { KitchenService } from 'src/modules/kitchen/kitchen.service';
+import { KitchenItemStatus } from '@src/modules/core_ms/kitchen/entities/kitchen-item.entity';
+import { KitchenService } from '@src/modules/core_ms/kitchen/kitchen.service';
 import {
   CreateKitchenItemDto,
   createKitchenItemSchema,
@@ -24,8 +24,8 @@ import { CurrentUser } from '@src/util/decorators/current-user.decorator';
 import { RequirePermission } from '@src/util/decorators/require-permission.decorator';
 import { RequireRole } from '@src/util/decorators/require-role.decorator';
 import { User } from '@supabase/supabase-js';
-import { Company } from '@src/modules/company/entities/company.entity';
 import { CurrentCompany } from '@src/util/decorators/current-company.decorators';
+import { Company } from '@src/modules/auth_ms/company/entities/company.entity';
 
 @Controller('kds-kitchen')
 @UseGuards(SupabaseAuthGuard, PermissionGuard)

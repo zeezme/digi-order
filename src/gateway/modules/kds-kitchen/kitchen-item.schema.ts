@@ -1,4 +1,4 @@
-import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
+import { KitchenItemStatus } from '@src/modules/core_ms/kitchen/entities/kitchen-item.entity';
 import { z } from 'zod';
 
 const kitchenItemStatusSchema = z.enum(

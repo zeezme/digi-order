@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Company } from '@src/modules/auth_ms/company/entities/company.entity';
 import { Request } from 'express';
-import { Company } from '@src/modules/company/entities/company.entity';
 
 /**
  * ### Custom NestJS parameter decorator that extracts the current `Company`
