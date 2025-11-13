@@ -14,6 +14,18 @@ export class UserRepository extends BaseRepository<User> {
     return this.findOneBy({ supabaseId, deletedAt: null });
   }
 
+  async findBySupabaseIds(ids: (number | string)[]): Promise<User[]> {
+    const numericIds = ids
+      .map((id) => (typeof id === 'string' ? parseInt(id, 10) : id))
+      .filter((id) => typeof id === 'number' && !isNaN(id));
+
+    return this.em.find(User, {
+      id: { $in: numericIds },
+      isActive: true,
+      deletedAt: null,
+    });
+  }
+
   async findByEmail(email: string, companyId: number): Promise<User | null> {
     return this.findOneBy({ email, companyId, deletedAt: null });
   }

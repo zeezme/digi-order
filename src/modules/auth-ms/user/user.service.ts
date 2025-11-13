@@ -4,6 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,16 @@ export class UserService {
 
   async findBySupabaseId(supabaseId: string) {
     return this.userRepository.findBySupabaseId(supabaseId);
+  }
+
+  async findBySupabaseIds(ids: (number | string)[]): Promise<Partial<User>[]> {
+    const users = await this.userRepository.findBySupabaseIds(ids);
+
+    return users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      companyId: user.companyId,
+    }));
   }
 
   async findByEmail(email: string, companyId: number) {
