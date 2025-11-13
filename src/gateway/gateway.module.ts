@@ -7,6 +7,7 @@ import { NotificationModule } from 'src/modules/notification/notification.module
 import { KDSKitchenController } from './modules/kds-kitchen/kds-kitchen.controller';
 import { KitchenGatewayService } from './modules/kds-kitchen/kds-kitchen.service';
 import { AuthModule } from './auth/auth.module';
+import { PermissionModule } from '@src/modules/permission/permission.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     TableModule,
     KitchenModule,
     NotificationModule,
+    PermissionModule,
   ],
   controllers: [KDSKitchenController],
   providers: [KitchenGatewayService],

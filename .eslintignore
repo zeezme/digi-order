@@ -1,0 +1,7 @@
+# .eslintignore
+src/migrations/**
+dist/**
+build/**
+node_modules/**
+*.d.ts
+*.config.js

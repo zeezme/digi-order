@@ -1,39 +1,51 @@
+// src/modules/kitchen/kitchen.repository.ts
 import { Injectable } from '@nestjs/common';
-import { SqlEntityManager } from '@mikro-orm/postgresql';
 import { BaseRepository } from 'src/util/repository/base.repository';
-import { AuditRepository } from 'src/util/repository/audit.repository';
-import { KitchenItem, KitchenItemStatus } from './entities/kitchen-item.entity';
+import { KitchenItem } from './entities/kitchen-item.entity';
+import { KitchenItemStatus } from './entities/kitchen-item.entity';
+import { SqlEntityManager } from '@mikro-orm/postgresql';
+import { AuditRepository } from '@src/util/repository/audit.repository';
 
 @Injectable()
 export class KitchenItemRepository extends BaseRepository<KitchenItem> {
-  constructor(em: SqlEntityManager, auditRepo?: AuditRepository) {
+  constructor(em: SqlEntityManager, auditRepo: AuditRepository) {
     super(em, KitchenItem, auditRepo, 'KitchenItem');
   }
 
-  async findByOrderId(orderId: number): Promise<KitchenItem[]> {
-    return this.findAllEntities({ orderId });
+  async findAllByCompany(companyId: number) {
+    return this.findAllEntities({ companyId });
   }
 
-  async findByStatus(status: KitchenItemStatus): Promise<KitchenItem[]> {
-    return this.findAllEntities({ status });
+  async findOneByIdAndCompany(id: number, companyId: number) {
+    return this.findOneBy({ id, companyId });
   }
 
-  async findPendingByOrderId(orderId: number): Promise<KitchenItem[]> {
-    return this.findAllEntities({ orderId, status: KitchenItemStatus.PENDING });
+  async findByOrderIdAndCompany(orderId: number, companyId: number) {
+    return this.findAllEntities({ orderId, companyId });
   }
 
-  async updateStatus(
+  async findByStatusAndCompany(status: KitchenItemStatus, companyId: number) {
+    return this.findAllEntities({ status, companyId });
+  }
+
+  async updateStatusWithCompany(
     id: number,
     status: KitchenItemStatus,
-  ): Promise<KitchenItem> {
-    const item = await this.findById(id);
-    if (!item) {
-      throw new Error(`Kitchen item with ID ${id} not found`);
-    }
-    return this.updateEntity(item, { status });
+    companyId: number,
+  ) {
+    const item = await this.findOneByIdAndCompany(id, companyId);
+    if (!item) return null;
+
+    item.status = status;
+    await this.updateEntity(item, { status });
+    return item;
   }
 
-  async countByStatus(status: KitchenItemStatus): Promise<number> {
-    return this.countBy({ status });
+  async deleteByIdAndCompany(id: number, companyId: number) {
+    const item = await this.findOneByIdAndCompany(id, companyId);
+    if (!item) return false;
+
+    await this.deleteEntity(item);
+    return true;
   }
 }

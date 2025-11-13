@@ -1,3 +1,4 @@
+// src/modules/kitchen/kitchen-gateway.service.ts
 import { Injectable } from '@nestjs/common';
 import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
 import { KitchenService } from 'src/modules/kitchen/kitchen.service';
@@ -6,11 +7,18 @@ import { KitchenService } from 'src/modules/kitchen/kitchen.service';
 export class KitchenGatewayService {
   constructor(private readonly kitchenService: KitchenService) {}
 
-  async getPendingOrders() {
-    return this.kitchenService.findByStatus(KitchenItemStatus.PENDING);
+  async getPendingOrders(companyId: number) {
+    return this.kitchenService.findByStatusAndCompany(
+      KitchenItemStatus.PENDING,
+      companyId,
+    );
   }
 
-  async updateOrderStatus(orderId: number, status: KitchenItemStatus) {
-    return this.kitchenService.updateStatus(orderId, status);
+  async updateOrderStatus(
+    itemId: number,
+    status: KitchenItemStatus,
+    companyId: number,
+  ) {
+    return this.kitchenService.updateStatus(itemId, status, companyId);
   }
 }

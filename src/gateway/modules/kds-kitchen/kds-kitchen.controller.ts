@@ -7,8 +7,10 @@ import {
   Param,
   Body,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
-import { SupabaseAuthGuard } from 'src/gateway/auth/supabase.guard';
+import { SupabaseAuthGuard } from '@src/util/guards/supabase.guard';
+import { PermissionGuard } from '@src/util/guards/permission.guard';
 import { KitchenItemStatus } from 'src/modules/kitchen/entities/kitchen-item.entity';
 import { KitchenService } from 'src/modules/kitchen/kitchen.service';
 import {
@@ -19,53 +21,81 @@ import {
 } from './kitchen-item.schema';
 import { ZodValidated } from '@src/util/decorators/zod-validated.decorator';
 import { CurrentUser } from '@src/util/decorators/current-user.decorator';
+import { RequirePermission } from '@src/util/decorators/require-permission.decorator';
+import { RequireRole } from '@src/util/decorators/require-role.decorator';
 import { User } from '@supabase/supabase-js';
+import { Company } from '@src/modules/company/entities/company.entity';
+import { CurrentCompany } from '@src/util/decorators/current-company.decorators';
 
 @Controller('kds-kitchen')
-@UseGuards(SupabaseAuthGuard)
+@UseGuards(SupabaseAuthGuard, PermissionGuard)
 export class KDSKitchenController {
   constructor(private readonly kitchenService: KitchenService) {}
 
   @Get('items')
-  getAllItems(@CurrentUser() user: User) {
-    console.log(user);
-    return this.kitchenService.findAll();
+  @RequirePermission('kitchen.item.list')
+  getAllItems(@CurrentUser() user: User, @CurrentCompany() company: Company) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.findAllByCompany(company.id);
   }
 
   @Get('items/:id')
-  getItem(@Param('id') id: number) {
-    return this.kitchenService.findOne(+id);
+  @RequirePermission('kitchen.item.read')
+  getItem(@Param('id') id: number, @CurrentCompany() company: Company) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.findOneByCompany(+id, company.id);
   }
 
   @Get('orders/:orderId/items')
-  getItemsByOrder(@Param('orderId') orderId: number) {
-    return this.kitchenService.findByOrderId(+orderId);
+  @RequirePermission('kitchen.item.list')
+  getItemsByOrder(
+    @Param('orderId') orderId: number,
+    @CurrentCompany() company: Company,
+  ) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.findByOrderIdAndCompany(+orderId, company.id);
   }
 
   @Get('items/status/:status')
-  getItemsByStatus(@Param('status') status: KitchenItemStatus) {
-    return this.kitchenService.findByStatus(status);
+  @RequirePermission('kitchen.item.list')
+  getItemsByStatus(
+    @Param('status') status: KitchenItemStatus,
+    @CurrentCompany() company: Company,
+  ) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.findByStatusAndCompany(status, company.id);
   }
 
   @Post('items')
   @ZodValidated(createKitchenItemSchema)
-  createItem(@Body() dto: CreateKitchenItemDto) {
-    return this.kitchenService.create(dto.orderId, dto.menuItemId);
+  @RequireRole('kitchen', 'admin')
+  @RequirePermission('kitchen.item.create')
+  createItem(
+    @Body() dto: CreateKitchenItemDto,
+    @CurrentCompany() company: Company,
+  ) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.create(dto.orderId, dto.menuItemId, company.id);
   }
 
   @Patch('items/:id/status')
   @ZodValidated(updateKitchenItemSchema)
-  updateStatus(@Param('id') id: number, @Body() dto: UpdateKitchenItemDto) {
-    return this.kitchenService.updateStatus(+id, dto.status!);
+  @RequireRole('kitchen')
+  @RequirePermission('kitchen.item.update')
+  updateStatus(
+    @Param('id') id: number,
+    @Body() dto: UpdateKitchenItemDto,
+    @CurrentCompany() company: Company,
+  ) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.updateStatus(+id, dto.status!, company.id);
   }
 
   @Delete('items/:id')
-  deleteItem(@Param('id') id: number) {
-    return this.kitchenService.remove(+id);
-  }
-
-  @Get('items/pending/count')
-  getPendingCount() {
-    return this.kitchenService.getPendingCount();
+  @RequireRole('admin')
+  @RequirePermission('kitchen.item.delete')
+  deleteItem(@Param('id') id: number, @CurrentCompany() company: Company) {
+    if (!company?.id) throw new ForbiddenException('Company not found');
+    return this.kitchenService.remove(+id, company.id);
   }
 }
