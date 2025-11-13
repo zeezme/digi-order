@@ -8,6 +8,7 @@ import { KDSKitchenController } from './modules/kds-kitchen/kds-kitchen.controll
 import { KitchenGatewayService } from './modules/kds-kitchen/kds-kitchen.service';
 import { AuthModule } from './auth/auth.module';
 import { PermissionModule } from '@src/modules/auth-ms/permission/permission.module';
+import { SharedKernelModule } from '@src/util/shared-kernel/shared-kernel.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PermissionModule } from '@src/modules/auth-ms/permission/permission.mod
     KitchenModule,
     NotificationModule,
     PermissionModule,
+    SharedKernelModule,
   ],
   controllers: [KDSKitchenController],
   providers: [KitchenGatewayService],

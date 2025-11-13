@@ -27,6 +27,8 @@ import { CurrentCompany } from '@src/util/decorators/current-company.decorators'
 import { Company } from '@src/modules/auth-ms/company/entities/company.entity';
 import { KitchenReadService } from '@src/modules/core-ms/kitchen/services/kitchen-read.service';
 import { KitchenWriteService } from '@src/modules/core-ms/kitchen/services/kitchen-write.service';
+import { UserIdentityQueryClient } from '@src/util/shared-kernel/identity/user-identity.query-client';
+import { stitchUserProfiles } from '@src/util/shared-kernel/helpers/stitching.helper';
 
 @Controller('kds-kitchen')
 @UseGuards(SupabaseAuthGuard, PermissionGuard)
@@ -34,13 +36,28 @@ export class KDSKitchenController {
   constructor(
     private readonly kitchenReadService: KitchenReadService,
     private readonly kitchenWriteService: KitchenWriteService,
+    private readonly userIdentityQueryClient: UserIdentityQueryClient,
   ) {}
 
   @Get('items')
-  @RequirePermission('kitchen.item.list')
-  getAllItems(@CurrentUser() user: User, @CurrentCompany() company: Company) {
+  // @RequirePermission('kitchen.item.list')
+  async getAllItems(
+    @CurrentUser() user: User,
+    @CurrentCompany() company: Company,
+  ) {
+    console.log(user);
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenReadService.findAllByCompany(company.id);
+
+    const items = await this.kitchenReadService.findAllByCompany(company.id);
+
+    const stitchedItems = await stitchUserProfiles(
+      items,
+      'createdBy',
+      'createdByProfile',
+      this.userIdentityQueryClient,
+    );
+
+    return stitchedItems;
   }
 
   @Get('items/:id')

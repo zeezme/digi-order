@@ -15,6 +15,7 @@ import { UserModule } from './modules/auth-ms/user/user.module';
 import { AuthModule } from './modules/gateway-ms/auth/auth.module';
 import { GatewayModule } from './modules/gateway-ms/gateway.module';
 import { KafkaModule } from './util/kafka/kafka.module';
+import { SharedKernelModule } from './util/shared-kernel/shared-kernel.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { KafkaModule } from './util/kafka/kafka.module';
     PermissionModule,
     UserModule,
     KafkaModule,
+    SharedKernelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
