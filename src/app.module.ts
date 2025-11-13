@@ -14,6 +14,7 @@ import { PermissionModule } from './modules/auth_ms/permission/permission.module
 import { UserModule } from './modules/auth_ms/user/user.module';
 import { AuthModule } from './modules/gateway_ms/auth/auth.module';
 import { GatewayModule } from './modules/gateway_ms/gateway.module';
+import { KafkaModule } from './util/kafka/kafka.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { GatewayModule } from './modules/gateway_ms/gateway.module';
     CompanyModule,
     PermissionModule,
     UserModule,
+    KafkaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
