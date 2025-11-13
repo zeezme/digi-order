@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SupabaseService } from '@src/modules/gateway_ms/auth/supabase.service';
+import { SupabaseService } from '@src/modules/gateway-ms/auth/supabase.service';
 
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {

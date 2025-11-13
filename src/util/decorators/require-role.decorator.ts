@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { RoleType } from '@src/modules/auth_ms/permission/entities/role.entity';
+import { RoleType } from '@src/modules/auth-ms/permission/entities/role.entity';
 
 export const ROLES_METADATA_KEY = 'roles';
 

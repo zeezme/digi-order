@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { SqlEntityManager } from '@mikro-orm/postgresql';
 
-import { KitchenService } from './kitchen.service';
 import { AuditRepository } from 'src/util/repository/audit.repository';
 import { KitchenItemRepository } from './kitchen.repository';
+import { KitchenReadService } from './services/kitchen-read.service';
+import { KitchenWriteService } from './services/kitchen-write.service';
 
 @Module({
   providers: [
-    KitchenService,
+    KitchenReadService,
+    KitchenWriteService,
     {
       provide: AuditRepository,
       useFactory: (em: SqlEntityManager) => new AuditRepository(em),
@@ -20,6 +22,6 @@ import { KitchenItemRepository } from './kitchen.repository';
       inject: [SqlEntityManager, AuditRepository],
     },
   ],
-  exports: [KitchenItemRepository, KitchenService],
+  exports: [KitchenItemRepository, KitchenReadService, KitchenWriteService],
 })
 export class KitchenModule {}

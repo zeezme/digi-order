@@ -12,9 +12,9 @@ import {
   PERMISSIONS_METADATA_KEY,
 } from '../decorators/require-permission.decorator';
 import { ROLES_METADATA_KEY } from '../decorators/require-role.decorator';
-import { PermissionService } from '@src/modules/auth_ms/permission/services/permission.service';
-import { RoleType } from '@src/modules/auth_ms/permission/entities/role.entity';
-import { ROLES } from '@src/modules/auth_ms/permission/permission.config';
+import { PermissionService } from '@src/modules/auth-ms/permission/services/permission.service';
+import { RoleType } from '@src/modules/auth-ms/permission/entities/role.entity';
+import { ROLES } from '@src/modules/auth-ms/permission/permission.config';
 
 /**
  * ### Guard responsible for validating a user's access based on

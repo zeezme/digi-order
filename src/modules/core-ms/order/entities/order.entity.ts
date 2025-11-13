@@ -9,8 +9,8 @@ import {
   OneToOne,
 } from '@mikro-orm/core';
 import { BaseEntity } from '@src/util/entities/base.entity';
-import { Table } from '@src/modules/core_ms/table/entities/table.entity';
-import { KitchenItem } from '@src/modules/core_ms/kitchen/entities/kitchen-item.entity';
+import { Table } from '@src/modules/core-ms/table/entities/table.entity';
+import { KitchenItem } from '@src/modules/core-ms/kitchen/entities/kitchen-item.entity';
 import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {

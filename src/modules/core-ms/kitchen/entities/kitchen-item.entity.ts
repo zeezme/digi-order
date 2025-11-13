@@ -1,7 +1,7 @@
 import { Entity, Property, Index, ManyToOne, OneToOne } from '@mikro-orm/core';
-import { MenuItem } from '@src/modules/core_ms/menu/entities/menu-item.entity';
-import { OrderItem } from '@src/modules/core_ms/order/entities/order-item.entity';
-import { Order } from '@src/modules/core_ms/order/entities/order.entity';
+import { MenuItem } from '@src/modules/core-ms/menu/entities/menu-item.entity';
+import { OrderItem } from '@src/modules/core-ms/order/entities/order-item.entity';
+import { Order } from '@src/modules/core-ms/order/entities/order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
 
 export enum KitchenItemStatus {
@@ -14,7 +14,7 @@ export enum KitchenItemStatus {
 
 @Entity()
 @Index({ properties: ['companyId', 'status'] })
-@Index({ properties: ['companyId', 'order'] }) // 'orderId' mudou para 'order'
+@Index({ properties: ['companyId', 'order'] })
 @Index({ properties: ['companyId', 'deletedAt'] })
 export class KitchenItem extends BaseEntity {
   @ManyToOne(() => Order)

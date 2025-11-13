@@ -6,7 +6,7 @@ import {
   OneToMany,
   Collection,
 } from '@mikro-orm/core';
-import { Order } from '@src/modules/core_ms/order/entities/order.entity';
+import { Order } from '@src/modules/core-ms/order/entities/order.entity';
 import { BaseEntity } from '@src/util/entities/base.entity';
 
 @Entity()

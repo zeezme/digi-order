@@ -11,8 +11,7 @@ import {
 } from '@nestjs/common';
 import { SupabaseAuthGuard } from '@src/util/guards/supabase.guard';
 import { PermissionGuard } from '@src/util/guards/permission.guard';
-import { KitchenItemStatus } from '@src/modules/core_ms/kitchen/entities/kitchen-item.entity';
-import { KitchenService } from '@src/modules/core_ms/kitchen/kitchen.service';
+import { KitchenItemStatus } from '@src/modules/core-ms/kitchen/entities/kitchen-item.entity';
 import {
   CreateKitchenItemDto,
   createKitchenItemSchema,
@@ -25,25 +24,30 @@ import { RequirePermission } from '@src/util/decorators/require-permission.decor
 import { RequireRole } from '@src/util/decorators/require-role.decorator';
 import { User } from '@supabase/supabase-js';
 import { CurrentCompany } from '@src/util/decorators/current-company.decorators';
-import { Company } from '@src/modules/auth_ms/company/entities/company.entity';
+import { Company } from '@src/modules/auth-ms/company/entities/company.entity';
+import { KitchenReadService } from '@src/modules/core-ms/kitchen/services/kitchen-read.service';
+import { KitchenWriteService } from '@src/modules/core-ms/kitchen/services/kitchen-write.service';
 
 @Controller('kds-kitchen')
 @UseGuards(SupabaseAuthGuard, PermissionGuard)
 export class KDSKitchenController {
-  constructor(private readonly kitchenService: KitchenService) {}
+  constructor(
+    private readonly kitchenReadService: KitchenReadService,
+    private readonly kitchenWriteService: KitchenWriteService,
+  ) {}
 
   @Get('items')
   @RequirePermission('kitchen.item.list')
   getAllItems(@CurrentUser() user: User, @CurrentCompany() company: Company) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.findAllByCompany(company.id);
+    return this.kitchenReadService.findAllByCompany(company.id);
   }
 
   @Get('items/:id')
   @RequirePermission('kitchen.item.read')
   getItem(@Param('id') id: number, @CurrentCompany() company: Company) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.findOneByCompany(+id, company.id);
+    return this.kitchenReadService.findOneByCompany(+id, company.id);
   }
 
   @Get('orders/:orderId/items')
@@ -53,7 +57,10 @@ export class KDSKitchenController {
     @CurrentCompany() company: Company,
   ) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.findByOrderIdAndCompany(+orderId, company.id);
+    return this.kitchenReadService.findByOrderIdAndCompany(
+      +orderId,
+      company.id,
+    );
   }
 
   @Get('items/status/:status')
@@ -63,7 +70,7 @@ export class KDSKitchenController {
     @CurrentCompany() company: Company,
   ) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.findByStatusAndCompany(status, company.id);
+    return this.kitchenReadService.findByStatusAndCompany(status, company.id);
   }
 
   @Post('items')
@@ -75,7 +82,11 @@ export class KDSKitchenController {
     @CurrentCompany() company: Company,
   ) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.create(dto.orderId, dto.menuItemId, company.id);
+    return this.kitchenWriteService.create(
+      dto.orderId,
+      dto.menuItemId,
+      company.id,
+    );
   }
 
   @Patch('items/:id/status')
@@ -88,7 +99,7 @@ export class KDSKitchenController {
     @CurrentCompany() company: Company,
   ) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.updateStatus(+id, dto.status!, company.id);
+    return this.kitchenWriteService.updateStatus(+id, dto.status!, company.id);
   }
 
   @Delete('items/:id')
@@ -96,6 +107,6 @@ export class KDSKitchenController {
   @RequirePermission('kitchen.item.delete')
   deleteItem(@Param('id') id: number, @CurrentCompany() company: Company) {
     if (!company?.id) throw new ForbiddenException('Company not found');
-    return this.kitchenService.remove(+id, company.id);
+    return this.kitchenWriteService.remove(+id, company.id);
   }
 }

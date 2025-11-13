@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { PERMISSIONS } from '@src/modules/auth_ms/permission/permission.config';
+import { PERMISSIONS } from '@src/modules/auth-ms/permission/permission.config';
 
 /**
  * Utility type that transforms the nested `PERMISSIONS` object
