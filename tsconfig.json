@@ -27,9 +27,6 @@
 
     "incremental": true
   },
-  "include": [
-    "src/**/*",
-    "src/mikro-orm.config.ts"
-  ],
+  "include": ["src/**/*", "src/mikro-orm.config.ts"],
   "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
 }

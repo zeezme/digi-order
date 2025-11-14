@@ -30,12 +30,9 @@ export class Role {
   @Property({ nullable: true, type: 'text' })
   description?: string;
 
-  @Property({ type: 'json', nullable: true })
-  permissions?: string[];
-
   @ManyToMany(() => Permission)
   permissionEntities = new Collection<Permission>(this);
 
-  @OneToMany(() => UserRole, (userRole) => userRole.role)
+  @OneToMany(() => UserRole, (ur) => ur.role)
   userRoles = new Collection<UserRole>(this);
 }

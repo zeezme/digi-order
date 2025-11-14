@@ -8,24 +8,46 @@ export const PERMISSIONS = {
     delete: 'Excluir empresa',
   },
   user: {
-    invite: 'Convidar usuário',
-    remove: 'Remover usuário',
+    create: 'Criar usuário',
+    read: 'Ler usuário',
+    update: 'Editar usuário',
+    delete: 'Excluir usuário',
     list: 'Listar usuários',
   },
   role: {
-    assign: 'Atribuir função',
-    manage: 'Gerenciar funções',
     create: 'Criar função',
+    read: 'Ler função',
     update: 'Editar função',
     delete: 'Excluir função',
     list: 'Listar funções',
   },
+  menu: {
+    create: 'Criar item de menu',
+    read: 'Ler item de menu',
+    update: 'Editar item de menu',
+    delete: 'Excluir item de menu',
+    list: 'Listar itens de menu',
+  },
+  table: {
+    create: 'Criar mesa',
+    read: 'Ler mesa',
+    update: 'Editar mesa',
+    delete: 'Excluir mesa',
+    list: 'Listar mesas',
+  },
+  order: {
+    create: 'Criar pedido',
+    read: 'Ler pedido',
+    update: 'Editar pedido',
+    delete: 'Excluir pedido',
+    list: 'Listar pedidos',
+  },
   kitchen: {
-    'item.list': 'Listar itens da cozinha',
-    'item.read': 'Ver item da cozinha',
-    'item.create': 'Criar item na cozinha',
-    'item.update': 'Atualizar status do item',
-    'item.delete': 'Excluir item da cozinha',
+    list: 'Listar itens da cozinha',
+    read: 'Ver item da cozinha',
+    create: 'Criar item na cozinha',
+    update: 'Atualizar item da cozinha',
+    delete: 'Excluir item da cozinha',
   },
 } as const;
 
@@ -33,56 +55,117 @@ export type PermissionKey =
   `${keyof typeof PERMISSIONS}.${keyof (typeof PERMISSIONS)[keyof typeof PERMISSIONS]}`;
 
 /**
- * Definição de roles padrão do sistema
+ * Definição de roles padrão do sistema (Mapeamento reduzido apenas para CRUD)
  */
 export const ROLES = {
   [RoleType.ADMIN]: {
     name: RoleType.ADMIN,
-    description: 'Administrador - pode gerenciar usuários e configurações',
+    description: 'Administrador - Acesso CRUD total a todas as entidades',
     permissions: [
+      // CRUD Total (Company)
+      'company.create',
       'company.read',
       'company.update',
-      'user.invite',
-      'user.remove',
+      'company.delete',
+
+      // CRUD Total (User)
+      'user.create',
+      'user.read',
+      'user.update',
+      'user.delete',
       'user.list',
-      'role.assign',
+
+      // CRUD Total (Role)
+      'role.create',
+      'role.read',
+      'role.update',
+      'role.delete',
       'role.list',
-      'kitchen.item.list',
-      'kitchen.item.read',
-      'kitchen.item.create',
-      'kitchen.item.update',
+
+      // CRUD Total (Menu)
+      'menu.create',
+      'menu.read',
+      'menu.update',
+      'menu.delete',
+      'menu.list',
+
+      // CRUD Total (Table)
+      'table.create',
+      'table.read',
+      'table.update',
+      'table.delete',
+      'table.list',
+
+      // CRUD Total (Order)
+      'order.create',
+      'order.read',
+      'order.update',
+      'order.delete',
+      'order.list',
+
+      // CRUD Total (Kitchen) - Renomeado para não usar o prefixo 'item.'
+      'kitchen.list',
+      'kitchen.read',
+      'kitchen.create',
+      'kitchen.update',
+      'kitchen.delete',
     ] as const,
   },
   [RoleType.MANAGER]: {
     name: RoleType.MANAGER,
-    description: 'Gerente - pode convidar e visualizar',
+    description:
+      'Gerente - CRUD total em Menu e visualização em outras entidades',
     permissions: [
       'company.read',
-      'user.invite',
+      'user.read',
       'user.list',
       'role.list',
+
+      // CRUD Menu
+      'menu.create',
+      'menu.read',
+      'menu.update',
+      'menu.delete',
+      'menu.list',
+
+      'table.read',
+      'table.list',
+      'order.read',
+      'order.list',
     ] as const,
   },
   [RoleType.WAITER]: {
     name: RoleType.WAITER,
-    description: 'Garçom - acesso ao pedido',
-    permissions: ['company.read', 'user.list'] as const,
+    description: 'Garçom - Criação e leitura de Pedidos e Mesas',
+    permissions: [
+      'company.read',
+      'user.list',
+      'menu.read',
+      'menu.list',
+      'table.read',
+      'table.list',
+      'order.create',
+      'order.read',
+      'order.update',
+      'order.list',
+    ] as const,
   },
   [RoleType.KITCHEN]: {
     name: RoleType.KITCHEN,
-    description: 'Cozinha - gerencia os itens da cozinha',
-    permissions: [
-      'kitchen.item.list',
-      'kitchen.item.read',
-      'kitchen.item.create',
-      'kitchen.item.update',
-    ],
+    description: 'Cozinha - Leitura e Atualização de itens da Cozinha',
+    permissions: ['kitchen.list', 'kitchen.read', 'kitchen.update'] as const,
   },
   [RoleType.CASHIER]: {
     name: RoleType.CASHIER,
-    description: 'Caixa - finaliza pedidos',
-    permissions: ['company.read', 'user.list'] as const,
+    description: 'Caixa - Leitura de Pedidos e Mesas',
+    permissions: [
+      'company.read',
+      'user.list',
+      'table.read',
+      'order.read',
+      'order.list',
+    ] as const,
   },
 } as const;
 
-export type RoleName = keyof typeof ROLES; // RoleType
+export type RoleName = keyof typeof ROLES;

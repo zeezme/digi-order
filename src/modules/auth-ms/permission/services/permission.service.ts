@@ -73,17 +73,26 @@ export class PermissionService {
     userId: string,
     companyId: number,
   ): Promise<string[]> {
-    const userRoles = await this.getUserRoles(userId, companyId);
+    const userRoles = await this.userRoleRepository.findByUserAndCompany(
+      userId,
+      companyId,
+    );
+
+    if (userRoles.length === 0) return [];
+
     const roleIds = userRoles.map((ur) => ur.role.id);
 
-    const roles = await this.roleRepository.findAllEntities({
-      id: { $in: roleIds },
-    });
+    const roles = await this.roleRepository.findAllEntities(
+      { id: { $in: roleIds } },
+      ['permissionEntities'],
+    );
 
     const permissions = new Set<string>();
-    roles.forEach((role) => {
-      role.permissions?.forEach((p) => permissions.add(p));
-    });
+    for (const role of roles) {
+      for (const perm of role.permissionEntities.getItems()) {
+        permissions.add(perm.key);
+      }
+    }
 
     return Array.from(permissions);
   }

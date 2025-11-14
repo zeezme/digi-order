@@ -15,6 +15,10 @@ export class RoleRepository extends BaseRepository<Role> {
   async findByName(name: RoleType): Promise<Role | null> {
     return this.findOneBy({ name });
   }
+
+  async findByNameWithPermissions(name: RoleType): Promise<Role | null> {
+    return this.findOneBy({ name }, ['permissionEntities']);
+  }
 }
 
 @Injectable()
@@ -65,6 +69,14 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
 export class PermissionRepository extends BaseRepository<Permission> {
   constructor(em: SqlEntityManager, auditRepo?: AuditRepository) {
     super(em, Permission, auditRepo, 'Permission');
+  }
+
+  async findByKeys(keys: string[]): Promise<Permission[]> {
+    if (keys.length === 0) return [];
+
+    return this.createQueryBuilder('p')
+      .where({ key: { $in: keys } })
+      .getResult();
   }
 
   async upsertByKey(

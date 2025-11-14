@@ -19,121 +19,157 @@ export class PermissionSyncService implements OnModuleInit {
     await this.syncRoles();
   }
 
+  // ================================
+  // SYNC PERMISSIONS
+  // ================================
   private async syncPermissions() {
-    const permissions: { key: string; description: string }[] = [];
-
-    for (const [moduleName, actions] of Object.entries(PERMISSIONS)) {
-      for (const [action, description] of Object.entries(actions)) {
-        permissions.push({
-          key: `${moduleName}.${action}`,
-          description,
-        });
-      }
-    }
-
-    console.log(`Sincronizando ${permissions.length} permissões...`);
-
+    this.permissionRepo.setSystemAudit(true);
     let created = 0;
     let updated = 0;
-    let skipped = 0;
+    let deleted = 0;
 
-    for (const perm of permissions) {
-      const { action } = await this.permissionRepo.upsertByKey(perm.key, {
-        description: perm.description,
-      });
+    try {
+      const permissionsInCode: { key: string; description: string }[] = [];
+      const permissionKeysInCode = new Set<string>();
 
-      switch (action) {
-        case 'created':
-          created++;
-          break;
-        case 'updated':
-          updated++;
-          break;
-        case 'skipped':
-          skipped++;
-          break;
+      for (const [moduleName, actions] of Object.entries(PERMISSIONS)) {
+        for (const [action, description] of Object.entries(actions)) {
+          const key = `${moduleName}.${action}`;
+          permissionsInCode.push({ key, description });
+          permissionKeysInCode.add(key);
+        }
       }
+
+      console.log(`Sincronizando ${permissionsInCode.length} permissões...`);
+
+      // Upsert each permission
+      for (const perm of permissionsInCode) {
+        const { action } = await this.permissionRepo.upsertByKey(perm.key, {
+          description: perm.description,
+        });
+
+        switch (action) {
+          case 'created':
+            created++;
+            break;
+          case 'updated':
+            updated++;
+            break;
+        }
+      }
+
+      // Delete permissions not in code
+      const allExisting = await this.permissionRepo.findAllEntities();
+      for (const perm of allExisting) {
+        if (!permissionKeysInCode.has(perm.key)) {
+          await this.permissionRepo.deleteEntity(perm);
+          deleted++;
+        }
+      }
+    } finally {
+      this.permissionRepo.setSystemAudit(false);
     }
 
     console.log(
-      `Permissões sincronizadas: ${created} criadas, ${updated} atualizadas, ${skipped} ignoradas.`,
+      `Permissões sincronizadas: ${created} criadas, ${updated} atualizadas, ${deleted} excluídas.`,
     );
   }
 
+  // ================================
+  // SYNC ROLES
+  // ================================
   private async syncRoles() {
+    this.roleRepo.setSystemAudit(true);
     console.log('Sincronizando roles padrão...');
 
     let created = 0;
     let updated = 0;
-    let skipped = 0;
+    let deleted = 0;
+    const roleNamesInCode = new Set(Object.keys(ROLES));
 
-    for (const [roleType, config] of Object.entries(ROLES)) {
-      const action = await this.upsertRole(
-        roleType as RoleType,
-        config.description,
-        config.permissions,
-      );
+    try {
+      for (const [roleType, config] of Object.entries(ROLES)) {
+        const action = await this.upsertRole(
+          roleType as RoleType,
+          config.description,
+          config.permissions,
+        );
 
-      switch (action) {
-        case 'created':
-          created++;
-          break;
-        case 'updated':
-          updated++;
-          break;
-        case 'skipped':
-          skipped++;
-          break;
+        switch (action) {
+          case 'created':
+            created++;
+            break;
+          case 'updated':
+            updated++;
+            break;
+        }
       }
+
+      // Delete roles not in code
+      const allExisting = await this.roleRepo.findAllEntities();
+      for (const role of allExisting) {
+        if (!roleNamesInCode.has(role.name)) {
+          await this.roleRepo.deleteEntity(role);
+          deleted++;
+        }
+      }
+    } finally {
+      this.roleRepo.setSystemAudit(false);
     }
 
     console.log(
-      `Roles sincronizados: ${created} criados, ${updated} atualizados, ${skipped} ignoradas.`,
+      `Roles sincronizados: ${created} criados, ${updated} atualizados, ${deleted} excluídos.`,
     );
   }
 
+  // ================================
+  // UPSERT ROLE (com @ManyToMany)
+  // ================================
   private async upsertRole(
     name: RoleType,
     description: string,
     permissionKeys: readonly string[],
   ): Promise<'created' | 'updated' | 'skipped'> {
-    this.roleRepo.setSystemAudit(true);
+    const existingRole = await this.roleRepo.findByNameWithPermissions(name);
+    const normalizedKeys = [...new Set(permissionKeys)].sort();
 
-    try {
-      const existingRole = await this.roleRepo.findByName(name);
-      const normalizedNewKeys = [...new Set(permissionKeys)].sort();
+    // Busca as entidades Permission pelo key
+    const permissionEntities =
+      await this.permissionRepo.findByKeys(normalizedKeys);
 
-      const hasChanges = () => {
-        if (!existingRole) return true;
-        if (existingRole.description !== description) return true;
-        const currentKeys = (existingRole.permissions || []).sort();
-        return (
-          JSON.stringify(currentKeys) !== JSON.stringify(normalizedNewKeys)
-        );
-      };
+    const hasChanges = (): boolean => {
+      if (!existingRole) return true;
+      if (existingRole.description !== description) return true;
 
-      if (existingRole) {
-        if (!hasChanges()) {
-          return 'skipped';
-        }
+      const currentKeys = existingRole.permissionEntities
+        .getItems()
+        .map((p) => p.key)
+        .sort();
 
-        await this.roleRepo.updateEntity(existingRole, {
-          description,
-          permissions: normalizedNewKeys,
-        });
+      if (currentKeys.length !== normalizedKeys.length) return true;
+      return currentKeys.some((k, i) => k !== normalizedKeys[i]);
+    };
 
-        return 'updated';
+    if (existingRole) {
+      if (!hasChanges()) {
+        return 'skipped';
       }
 
-      await this.roleRepo.createEntity({
-        name,
-        description,
-        permissions: normalizedNewKeys,
-      });
+      existingRole.description = description;
 
-      return 'created';
-    } finally {
-      this.roleRepo.setSystemAudit(false);
+      existingRole.permissionEntities.set(permissionEntities);
+
+      await this.roleRepo.getEntityManager().flush();
+      return 'updated';
     }
+
+    await this.roleRepo.createEntity({
+      name,
+      description,
+      permissionEntities,
+    });
+
+    await this.roleRepo.getEntityManager().flush();
+    return 'created';
   }
 }

@@ -7,6 +7,7 @@ import { CompanyRepository } from './company.repository';
 @Module({
   providers: [
     CompanyService,
+    CompanyRepository,
     {
       provide: AuditRepository,
       useFactory: (em: SqlEntityManager) => new AuditRepository(em),

@@ -40,7 +40,7 @@ export class KDSKitchenController {
   ) {}
 
   @Get('items')
-  // @RequirePermission('kitchen.item.list')
+  // @RequirePermission('kitchen.list')
   async getAllItems(
     @CurrentUser() user: User,
     @CurrentCompany() company: Company,
@@ -61,14 +61,14 @@ export class KDSKitchenController {
   }
 
   @Get('items/:id')
-  @RequirePermission('kitchen.item.read')
+  @RequirePermission('kitchen.read')
   getItem(@Param('id') id: number, @CurrentCompany() company: Company) {
     if (!company?.id) throw new ForbiddenException('Company not found');
     return this.kitchenReadService.findOneByCompany(+id, company.id);
   }
 
   @Get('orders/:orderId/items')
-  @RequirePermission('kitchen.item.list')
+  @RequirePermission('kitchen.list')
   getItemsByOrder(
     @Param('orderId') orderId: number,
     @CurrentCompany() company: Company,
@@ -81,7 +81,7 @@ export class KDSKitchenController {
   }
 
   @Get('items/status/:status')
-  @RequirePermission('kitchen.item.list')
+  @RequirePermission('kitchen.list')
   getItemsByStatus(
     @Param('status') status: KitchenItemStatus,
     @CurrentCompany() company: Company,
@@ -93,7 +93,7 @@ export class KDSKitchenController {
   @Post('items')
   @ZodValidated(createKitchenItemSchema)
   @RequireRole('kitchen', 'admin')
-  @RequirePermission('kitchen.item.create')
+  @RequirePermission('kitchen.create')
   createItem(
     @Body() dto: CreateKitchenItemDto,
     @CurrentCompany() company: Company,
@@ -109,7 +109,7 @@ export class KDSKitchenController {
   @Patch('items/:id/status')
   @ZodValidated(updateKitchenItemSchema)
   @RequireRole('kitchen')
-  @RequirePermission('kitchen.item.update')
+  @RequirePermission('kitchen.update')
   updateStatus(
     @Param('id') id: number,
     @Body() dto: UpdateKitchenItemDto,
@@ -121,7 +121,7 @@ export class KDSKitchenController {
 
   @Delete('items/:id')
   @RequireRole('admin')
-  @RequirePermission('kitchen.item.delete')
+  @RequirePermission('kitchen.delete')
   deleteItem(@Param('id') id: number, @CurrentCompany() company: Company) {
     if (!company?.id) throw new ForbiddenException('Company not found');
     return this.kitchenWriteService.remove(+id, company.id);

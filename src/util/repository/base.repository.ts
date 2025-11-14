@@ -8,6 +8,8 @@ import {
   EntityName,
   RequiredEntityData,
   helper,
+  AutoPath,
+  Loaded,
 } from '@mikro-orm/core';
 import { AuditRepository } from './audit.repository';
 
@@ -18,7 +20,7 @@ import { AuditRepository } from './audit.repository';
  * **system-audit mode** for seeds / sync jobs.
  *
  * - `setSystemAudit(true)` forces `userId = SYSTEM_USER_ID` and `companyId = 0`
- *   in every audit entry.
+ * in every audit entry.
  * - All methods are fully typed – only the minimal `as any` required by MikroORM.
  *
  * @template T - Managed entity type.
@@ -54,7 +56,8 @@ export abstract class BaseRepository<
 
     if (auditRepo && entityType) {
       this.setAuditCallback(async (status, action, context) => {
-        const finalCtx = this.buildAuditContext(context);
+        // CORREÇÃO (Construtor): Usar o 'context' já completo (finalCtx) passado por handleAudit
+        const finalCtx = context as Record<string, any>;
 
         const companyId = Number(
           finalCtx.companyId ??
@@ -62,12 +65,19 @@ export abstract class BaseRepository<
             this.SYSTEM_COMPANY_ID,
         );
 
+        // CORREÇÃO (Construtor): Garantir o userId. Se estiver faltando (undefined) e o companyId for o de sistema (0), forçar o SYSTEM_USER_ID ('0').
+        const userId =
+          finalCtx.userId ??
+          (companyId === this.SYSTEM_COMPANY_ID
+            ? this.SYSTEM_USER_ID
+            : undefined);
+
         await auditRepo.logAction({
           companyId,
           entityType,
           entityId: finalCtx.entityId, // Extract from context
           action: action.toUpperCase(),
-          userId: finalCtx.userId,
+          userId: userId, // Usar o userId determinado com fallback
           newValues: { status, context: finalCtx },
         });
       });
@@ -85,8 +95,10 @@ export abstract class BaseRepository<
 
   private buildAuditContext(
     context: Record<string, any> = {},
+    isSystemAudit: boolean, // <--- CORREÇÃO (Race Condition): Aceita o estado
   ): Record<string, any> {
-    if (this.enableSystemAudit) {
+    if (isSystemAudit) {
+      // <--- CORREÇÃO (Race Condition): Usa o estado passado
       return {
         ...context,
         userId: this.SYSTEM_USER_ID,
@@ -145,6 +157,7 @@ export abstract class BaseRepository<
     status: 'success' | 'error',
     action: string,
     context: Record<string, any>,
+    isSystemAudit: boolean, // <--- CORREÇÃO (Race Condition): Aceita o estado
   ): Promise<void> {
     if (!this.auditCallback) return;
 
@@ -152,15 +165,34 @@ export abstract class BaseRepository<
     const entityId = entity ? this.extractEntityId(entity) : null;
 
     const auditCtx = {
-      ...this.buildAuditContext(context),
+      ...this.buildAuditContext(context, isSystemAudit),
       entityId, // string | number | null
     };
 
     try {
+      // O auditCtx (que contém o userId de sistema se isSystemAudit for true) é passado para o callback
       await this.auditCallback(status, action, auditCtx);
     } catch (auditError) {
       console.error(`[Audit Logging Failed: ${action}]`, auditError);
     }
+  }
+
+  private async handleError(
+    error: Error,
+    action: string,
+    context: Record<string, any>,
+    isSystemAudit: boolean, // <--- CORREÇÃO (Race Condition): Aceita o estado
+  ): Promise<never> {
+    console.error(`[${this.getEntityName()}] Operation failed:`, error);
+
+    await this.handleAudit(
+      'error',
+      action,
+      { ...context, error },
+      isSystemAudit,
+    );
+
+    throw error;
   }
 
   public getEntityName(): string {
@@ -170,34 +202,40 @@ export abstract class BaseRepository<
     return 'UnknownEntity';
   }
 
-  private async handleError(
-    error: Error,
-    action: string,
-    context: Record<string, any>,
-  ): Promise<never> {
-    console.error(`[${this.getEntityName()}] Operation failed:`, error);
-
-    await this.handleAudit('error', action, { ...context, error });
-
-    throw error;
-  }
-
   // --------------------------------------------------------------------- //
   //                               CRUD METHODS
   // --------------------------------------------------------------------- //
 
-  /**
-   * Find all entities (optionally filtered).
-   *
-   * @param where   - Filter query.
-   * @param options - Populate, orderBy, limit, etc.
-   * @returns Array of entities.
-   */
+  // OVERLOAD 1: where + populate array + options
+  async findAllEntities<P extends string>(
+    where: FilterQuery<T>,
+    populate: readonly AutoPath<T, P>[],
+    options?: Omit<FindOptions<T, P>, 'populate'>,
+  ): Promise<Loaded<T, P>[]>;
+
+  // OVERLOAD 2: where + options
   async findAllEntities(
-    where?: FilterQuery<T>,
+    where: FilterQuery<T>,
     options?: FindOptions<T>,
+  ): Promise<T[]>;
+
+  // OVERLOAD 3: só where
+  async findAllEntities(where?: FilterQuery<T>): Promise<T[]>;
+
+  async findAllEntities(
+    where: FilterQuery<T> = {} as any,
+    populateOrOptions?: FindOptions<T> | readonly AutoPath<T, any>[],
+    extraOptions: Omit<FindOptions<T, any>, 'populate'> = {},
   ): Promise<T[]> {
-    return this.find(where ?? {}, options);
+    const options: FindOptions<T, any> = { ...extraOptions };
+
+    if (Array.isArray(populateOrOptions)) {
+      options.populate = populateOrOptions as any;
+    } else {
+      Object.assign(options, populateOrOptions ?? {});
+    }
+
+    return this.find(where, options as any);
   }
 
   /**
@@ -211,13 +249,42 @@ export abstract class BaseRepository<
   }
 
   /**
-   * Find one entity by arbitrary filter.
+   * Find one entity by filter with full populate support.
    *
-   * @param where - Filter query.
-   * @returns Entity or `null`.
+   * @param where    - Filter query
+   * @param populate - Array of valid relation paths (AutoPath)
+   * @param options  - Optional: orderBy, fields, etc.
    */
-  async findOneBy(where: FilterQuery<T>): Promise<T | null> {
-    return this.findOne(where);
+  async findOneBy<P extends string>(
+    where: FilterQuery<T>,
+    populate: readonly AutoPath<T, P>[],
+    options?: Omit<FindOptions<T, P>, 'populate'>,
+  ): Promise<T | null>;
+
+  /**
+   * Overload sem populate (apenas where + options)
+   */
+  async findOneBy(
+    where: FilterQuery<T>,
+    options?: FindOptions<T>,
+  ): Promise<T | null>;
+
+  async findOneBy(
+    where: FilterQuery<T>,
+    populateOrOptions?: FindOptions<T> | readonly AutoPath<T, any>[],
+    extraOptions: Omit<FindOptions<T, any>, 'populate'> = {},
+  ): Promise<T | null> {
+    const options: FindOptions<T, any> = {};
+
+    if (Array.isArray(populateOrOptions)) {
+      options.populate = populateOrOptions as any;
+      Object.assign(options, extraOptions);
+    } else {
+      Object.assign(options, populateOrOptions ?? {}, extraOptions);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.findOne(where, options as any);
   }
 
   /**
@@ -227,16 +294,22 @@ export abstract class BaseRepository<
    * @returns Created entity.
    */
   async createEntity(data: EntityData<T>): Promise<T> {
+    const isSystemAudit = this.enableSystemAudit;
     try {
       const entity = this.create(data as RequiredEntityData<T>);
 
       await this.getEntityManager().persistAndFlush(entity);
 
-      await this.handleAudit('success', 'create', { data, entity });
+      await this.handleAudit(
+        'success',
+        'create',
+        { data, entity },
+        isSystemAudit,
+      );
 
       return entity;
     } catch (error) {
-      await this.handleError(error as Error, 'create', { data });
+      await this.handleError(error as Error, 'create', { data }, isSystemAudit);
 
       throw error;
     }
@@ -250,17 +323,23 @@ export abstract class BaseRepository<
    * @returns Updated entity.
    */
   async updateEntity(entity: T, data: Partial<T>): Promise<T> {
+    const isSystemAudit = this.enableSystemAudit;
+
     try {
-      wrap(entity).assign(data as any);
+      // merge: true → permite sobrescrever objetos aninhados
+      wrap(entity).assign(data as any, { merge: true });
 
       await this.getEntityManager().flush();
 
-      await this.handleAudit('success', 'update', { data, entity });
-
+      await this.handleAudit(
+        'success',
+        'update',
+        { data, entity },
+        isSystemAudit,
+      );
       return entity;
     } catch (error) {
-      await this.handleError(error as Error, 'update', { data });
-
+      await this.handleError(error as Error, 'update', { data }, isSystemAudit);
       throw error;
     }
   }
@@ -271,12 +350,18 @@ export abstract class BaseRepository<
    * @param entity - Entity instance.
    */
   async deleteEntity(entity: T): Promise<void> {
+    const isSystemAudit = this.enableSystemAudit;
     try {
       await this.getEntityManager().removeAndFlush(entity);
 
-      await this.handleAudit('success', 'delete', { entity });
+      await this.handleAudit('success', 'delete', { entity }, isSystemAudit);
     } catch (error) {
-      await this.handleError(error as Error, 'delete', { entity });
+      await this.handleError(
+        error as Error,
+        'delete',
+        { entity },
+        isSystemAudit,
+      );
 
       throw error;
     }
@@ -289,13 +374,15 @@ export abstract class BaseRepository<
    * @returns `true` if deleted, `false` if not found.
    */
   async deleteById(id: number | string): Promise<boolean> {
+    const isSystemAudit = this.enableSystemAudit;
     try {
       const entity = await this.findById(id);
       if (!entity) return false;
       await this.deleteEntity(entity);
       return true;
     } catch (error) {
-      await this.handleError(error as Error, 'delete', { id });
+      // Usa o estado capturado no início do deleteById
+      await this.handleError(error as Error, 'delete', { id }, isSystemAudit);
       throw error;
     }
   }

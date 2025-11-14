@@ -930,15 +930,6 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
-        },
-        "permissions": {
-          "name": "permissions",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
         }
       },
       "name": "role",
