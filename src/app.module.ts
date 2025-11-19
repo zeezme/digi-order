@@ -6,8 +6,6 @@ import { OrderModule } from './modules/core-ms/order/order.module';
 import { TableModule } from './modules/core-ms/table/table.module';
 import { KitchenModule } from './modules/core-ms/kitchen/kitchen.module';
 import { NotificationModule } from './modules/notification-ms/notification.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import mikroOrmConfig from './mikro-orm.config';
 import { CompanyModule } from './modules/auth-ms/company/company.module';
 import { PermissionModule } from './modules/auth-ms/permission/permission.module';
@@ -34,7 +32,5 @@ import { SharedKernelModule } from './util/shared-kernel/shared-kernel.module';
     KafkaModule,
     SharedKernelModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
