@@ -1,4 +1,3 @@
-// src/modules/kitchen/kitchen-gateway.service.ts
 import { Injectable } from '@nestjs/common';
 import { KitchenItemStatus } from '@src/modules/core-ms/kitchen/entities/kitchen-item.entity';
 import { KitchenReadService } from '@src/modules/core-ms/kitchen/services/kitchen-read.service';

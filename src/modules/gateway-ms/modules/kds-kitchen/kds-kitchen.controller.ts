@@ -40,7 +40,6 @@ export class KDSKitchenController {
   ) {}
 
   @Get('items')
-  // @RequirePermission('kitchen.list')
   async getAllItems(
     @CurrentUser() user: User,
     @CurrentCompany() company: Company,

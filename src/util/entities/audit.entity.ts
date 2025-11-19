@@ -16,13 +16,13 @@ export class AuditLog {
   userId!: number;
 
   @Property()
-  entityType!: string; // 'Order', 'MenuItem', etc.
+  entityType!: string;
 
   @Property()
   entityId!: number;
 
   @Property()
-  action!: string; // 'CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE'
+  action!: string;
 
   @Property({ type: 'json', nullable: true })
   oldValues?: Record<string, any>;

@@ -1,4 +1,4 @@
-import { Company } from '@src/modules/company/entities/company.entity';
+import { Company } from '@src/modules/auth-ms/company/entities/company.entity';
 import { User } from '@supabase/supabase-js';
 
 declare global {

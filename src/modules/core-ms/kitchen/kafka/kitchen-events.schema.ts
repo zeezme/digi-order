@@ -13,7 +13,7 @@ export const KitchenItemCreatedSchema = z.object({
   orderId: z.number().int().positive(),
   menuItemId: z.number().int().positive(),
   companyId: z.number().int().positive(),
-  status: kitchenItemStatusSchema, // Deve ser PENDING
+  status: kitchenItemStatusSchema,
   createdAt: z.date(),
 });
 export type KitchenItemCreatedEvent = z.infer<typeof KitchenItemCreatedSchema>;

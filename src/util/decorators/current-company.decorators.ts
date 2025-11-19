@@ -24,7 +24,7 @@ import { Request } from 'express';
  *
  * @returns The current `Company` object, or `null` if no company is found
  */
-export const CurrentCompany = createParamDecorator(
+export const CurrentCompany = createParamDecorator<Company | null>(
   (_data: unknown, context: ExecutionContext): Company | null => {
     const request = context.switchToHttp().getRequest<Request>();
     return request.company ?? null;

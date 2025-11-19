@@ -3,9 +3,6 @@ import { RoleType } from '@src/modules/auth-ms/permission/entities/role.entity';
 
 export const ROLES_METADATA_KEY = 'roles';
 
-/**
- * Converts the RoleType enum values into string literal types.
- */
 type RoleTypeValue = `${RoleType}`;
 
 /**

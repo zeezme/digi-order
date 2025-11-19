@@ -23,19 +23,13 @@ export enum OrderStatus {
   CANCELLED = 'cancelled',
 }
 @Entity()
-@Index({ properties: ['companyId', 'table', 'deletedAt'] }) // 'tableId' mudou para 'table'
+@Index({ properties: ['companyId', 'table', 'deletedAt'] })
 @Index({ properties: ['companyId', 'status', 'deletedAt'] })
 @Index({ properties: ['companyId', 'createdAt'] })
 export class Order extends BaseEntity {
-  /**
-   * Muitos-para-Um: Muitos pedidos podem pertencer a uma mesa.
-   */
   @ManyToOne(() => Table)
   table!: Table;
 
-  /**
-   * Um-para-Um (Inverso): Referência de volta se este pedido é o 'currentOrder' de uma mesa.
-   */
   @OneToOne(() => Table, (table) => table.currentOrder, { nullable: true })
   currentTable?: Table;
 

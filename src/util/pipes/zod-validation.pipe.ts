@@ -1,4 +1,3 @@
-// src/util/pipes/zod-validation.pipe.ts
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import { ZodType, infer as ZodInfer } from 'zod';
 
@@ -14,6 +13,7 @@ export class ZodValidationPipe<T extends ZodType> implements PipeTransform {
         path: issue.path.join('.'),
         message: issue.message,
       }));
+
       throw new BadRequestException({
         message: 'Validation failed',
         errors: formattedErrors,

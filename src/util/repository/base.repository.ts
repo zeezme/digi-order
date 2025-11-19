@@ -28,7 +28,6 @@ import { AuditRepository } from './audit.repository';
 export abstract class BaseRepository<
   T extends object,
 > extends EntityRepository<T> {
-  /** Audit callback (success / error). */
   private auditCallback?: (
     status: 'success' | 'error',
     action: string,
@@ -56,7 +55,6 @@ export abstract class BaseRepository<
 
     if (auditRepo && entityType) {
       this.setAuditCallback(async (status, action, context) => {
-        // CORREÇÃO (Construtor): Usar o 'context' já completo (finalCtx) passado por handleAudit
         const finalCtx = context as Record<string, any>;
 
         const companyId = Number(
@@ -65,7 +63,6 @@ export abstract class BaseRepository<
             this.SYSTEM_COMPANY_ID,
         );
 
-        // CORREÇÃO (Construtor): Garantir o userId. Se estiver faltando (undefined) e o companyId for o de sistema (0), forçar o SYSTEM_USER_ID ('0').
         const userId =
           finalCtx.userId ??
           (companyId === this.SYSTEM_COMPANY_ID
@@ -75,9 +72,9 @@ export abstract class BaseRepository<
         await auditRepo.logAction({
           companyId,
           entityType,
-          entityId: finalCtx.entityId, // Extract from context
+          entityId: finalCtx.entityId,
           action: action.toUpperCase(),
-          userId: userId, // Usar o userId determinado com fallback
+          userId: userId,
           newValues: { status, context: finalCtx },
         });
       });
@@ -95,10 +92,9 @@ export abstract class BaseRepository<
 
   private buildAuditContext(
     context: Record<string, any> = {},
-    isSystemAudit: boolean, // <--- CORREÇÃO (Race Condition): Aceita o estado
+    isSystemAudit: boolean,
   ): Record<string, any> {
     if (isSystemAudit) {
-      // <--- CORREÇÃO (Race Condition): Usa o estado passado
       return {
         ...context,
         userId: this.SYSTEM_USER_ID,
@@ -128,24 +124,20 @@ export abstract class BaseRepository<
   }
 
   /**
-   * Extract entity ID safely, handling different PK types.
+   * Extract entity ID
    */
   private extractEntityId(entity: T): string | number | null {
     try {
-      // Use helper function to get PK
       const pk = helper(entity).getPrimaryKey();
 
-      // Handle undefined or null
       if (pk == null) {
         return null;
       }
 
-      // Handle composite keys (array) - join with dash
       if (Array.isArray(pk)) {
         return pk.filter((v) => v != null).join('-') || null;
       }
 
-      // Handle simple keys (string, number)
       return pk as string | number;
     } catch (error) {
       console.warn('[BaseRepository] Failed to extract entityId:', error);
@@ -157,7 +149,7 @@ export abstract class BaseRepository<
     status: 'success' | 'error',
     action: string,
     context: Record<string, any>,
-    isSystemAudit: boolean, // <--- CORREÇÃO (Race Condition): Aceita o estado
+    isSystemAudit: boolean,
   ): Promise<void> {
     if (!this.auditCallback) return;
 
@@ -166,11 +158,10 @@ export abstract class BaseRepository<
 
     const auditCtx = {
       ...this.buildAuditContext(context, isSystemAudit),
-      entityId, // string | number | null
+      entityId,
     };
 
     try {
-      // O auditCtx (que contém o userId de sistema se isSystemAudit for true) é passado para o callback
       await this.auditCallback(status, action, auditCtx);
     } catch (auditError) {
       console.error(`[Audit Logging Failed: ${action}]`, auditError);
@@ -181,7 +172,7 @@ export abstract class BaseRepository<
     error: Error,
     action: string,
     context: Record<string, any>,
-    isSystemAudit: boolean, // <--- CORREÇÃO (Race Condition): Aceita o estado
+    isSystemAudit: boolean,
   ): Promise<never> {
     console.error(`[${this.getEntityName()}] Operation failed:`, error);
 
@@ -202,28 +193,21 @@ export abstract class BaseRepository<
     return 'UnknownEntity';
   }
 
-  // --------------------------------------------------------------------- //
-  //                               CRUD METHODS
-  // --------------------------------------------------------------------- //
-
-  // OVERLOAD 1: where + populate array + options
   async findAllEntities<P extends string>(
     where: FilterQuery<T>,
     populate: readonly AutoPath<T, P>[],
     options?: Omit<FindOptions<T, P>, 'populate'>,
   ): Promise<Loaded<T, P>[]>;
 
-  // OVERLOAD 2: where + options
   async findAllEntities(
     where: FilterQuery<T>,
     options?: FindOptions<T>,
   ): Promise<T[]>;
 
-  // OVERLOAD 3: só where
   async findAllEntities(where?: FilterQuery<T>): Promise<T[]>;
 
   async findAllEntities(
-    where: FilterQuery<T> = {} as any,
+    where: FilterQuery<T> = {},
     populateOrOptions?: FindOptions<T> | readonly AutoPath<T, any>[],
     extraOptions: Omit<FindOptions<T, any>, 'populate'> = {},
   ): Promise<T[]> {
@@ -235,7 +219,7 @@ export abstract class BaseRepository<
       Object.assign(options, populateOrOptions ?? {});
     }
 
-    return this.find(where, options as any);
+    return this.find(where, options);
   }
 
   /**
@@ -262,7 +246,7 @@ export abstract class BaseRepository<
   ): Promise<T | null>;
 
   /**
-   * Overload sem populate (apenas where + options)
+   * Overload without populate
    */
   async findOneBy(
     where: FilterQuery<T>,
@@ -283,7 +267,6 @@ export abstract class BaseRepository<
       Object.assign(options, populateOrOptions ?? {}, extraOptions);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.findOne(where, options as any);
   }
 
@@ -326,7 +309,6 @@ export abstract class BaseRepository<
     const isSystemAudit = this.enableSystemAudit;
 
     try {
-      // merge: true → permite sobrescrever objetos aninhados
       wrap(entity).assign(data as any, { merge: true });
 
       await this.getEntityManager().flush();
@@ -381,7 +363,6 @@ export abstract class BaseRepository<
       await this.deleteEntity(entity);
       return true;
     } catch (error) {
-      // Usa o estado capturado no início do deleteById
       await this.handleError(error as Error, 'delete', { id }, isSystemAudit);
       throw error;
     }

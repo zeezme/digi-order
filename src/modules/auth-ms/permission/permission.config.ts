@@ -54,56 +54,46 @@ export const PERMISSIONS = {
 export type PermissionKey =
   `${keyof typeof PERMISSIONS}.${keyof (typeof PERMISSIONS)[keyof typeof PERMISSIONS]}`;
 
-/**
- * Definição de roles padrão do sistema (Mapeamento reduzido apenas para CRUD)
- */
 export const ROLES = {
   [RoleType.ADMIN]: {
     name: RoleType.ADMIN,
     description: 'Administrador - Acesso CRUD total a todas as entidades',
     permissions: [
-      // CRUD Total (Company)
       'company.create',
       'company.read',
       'company.update',
       'company.delete',
 
-      // CRUD Total (User)
       'user.create',
       'user.read',
       'user.update',
       'user.delete',
       'user.list',
 
-      // CRUD Total (Role)
       'role.create',
       'role.read',
       'role.update',
       'role.delete',
       'role.list',
 
-      // CRUD Total (Menu)
       'menu.create',
       'menu.read',
       'menu.update',
       'menu.delete',
       'menu.list',
 
-      // CRUD Total (Table)
       'table.create',
       'table.read',
       'table.update',
       'table.delete',
       'table.list',
 
-      // CRUD Total (Order)
       'order.create',
       'order.read',
       'order.update',
       'order.delete',
       'order.list',
 
-      // CRUD Total (Kitchen) - Renomeado para não usar o prefixo 'item.'
       'kitchen.list',
       'kitchen.read',
       'kitchen.create',
@@ -121,7 +111,6 @@ export const ROLES = {
       'user.list',
       'role.list',
 
-      // CRUD Menu
       'menu.create',
       'menu.read',
       'menu.update',

@@ -19,9 +19,6 @@ export class PermissionSyncService implements OnModuleInit {
     await this.syncRoles();
   }
 
-  // ================================
-  // SYNC PERMISSIONS
-  // ================================
   private async syncPermissions() {
     this.permissionRepo.setSystemAudit(true);
     let created = 0;
@@ -42,7 +39,6 @@ export class PermissionSyncService implements OnModuleInit {
 
       console.log(`Sincronizando ${permissionsInCode.length} permissões...`);
 
-      // Upsert each permission
       for (const perm of permissionsInCode) {
         const { action } = await this.permissionRepo.upsertByKey(perm.key, {
           description: perm.description,
@@ -58,7 +54,6 @@ export class PermissionSyncService implements OnModuleInit {
         }
       }
 
-      // Delete permissions not in code
       const allExisting = await this.permissionRepo.findAllEntities();
       for (const perm of allExisting) {
         if (!permissionKeysInCode.has(perm.key)) {
@@ -75,9 +70,6 @@ export class PermissionSyncService implements OnModuleInit {
     );
   }
 
-  // ================================
-  // SYNC ROLES
-  // ================================
   private async syncRoles() {
     this.roleRepo.setSystemAudit(true);
     console.log('Sincronizando roles padrão...');
@@ -105,7 +97,6 @@ export class PermissionSyncService implements OnModuleInit {
         }
       }
 
-      // Delete roles not in code
       const allExisting = await this.roleRepo.findAllEntities();
       for (const role of allExisting) {
         if (!roleNamesInCode.has(role.name)) {
@@ -122,9 +113,6 @@ export class PermissionSyncService implements OnModuleInit {
     );
   }
 
-  // ================================
-  // UPSERT ROLE (com @ManyToMany)
-  // ================================
   private async upsertRole(
     name: RoleType,
     description: string,
@@ -133,7 +121,6 @@ export class PermissionSyncService implements OnModuleInit {
     const existingRole = await this.roleRepo.findByNameWithPermissions(name);
     const normalizedKeys = [...new Set(permissionKeys)].sort();
 
-    // Busca as entidades Permission pelo key
     const permissionEntities =
       await this.permissionRepo.findByKeys(normalizedKeys);
 
