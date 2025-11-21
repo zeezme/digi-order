@@ -10,10 +10,10 @@ import mikroOrmConfig from './mikro-orm.config';
 import { CompanyModule } from './modules/auth-ms/company/company.module';
 import { PermissionModule } from './modules/auth-ms/permission/permission.module';
 import { UserModule } from './modules/auth-ms/user/user.module';
-import { AuthModule } from './modules/gateway-ms/auth/auth.module';
-import { GatewayModule } from './modules/gateway-ms/gateway.module';
 import { KafkaModule } from './util/kafka/kafka.module';
 import { SharedKernelModule } from './util/shared-kernel/shared-kernel.module';
+import { AuthModule } from './util/supabase/auth.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [

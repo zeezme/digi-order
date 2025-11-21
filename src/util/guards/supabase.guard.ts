@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
-import { SupabaseService } from '@src/modules/gateway-ms/auth/supabase.service';
+import { SupabaseService } from '@src/util/supabase/supabase.service';
 import { CompanyService } from '@src/modules/auth-ms/company/company.service';
 import { UserService } from '@src/modules/auth-ms/user/user.service';
 

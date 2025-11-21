@@ -120,7 +120,9 @@ export class PermissionGuard implements CanActivate {
     if (roleIds.length === 0) return false;
 
     const roles = await this.permissionService.roleRepository.findAllEntities({
-      id: { $in: roleIds },
+      where: {
+        id: { $in: roleIds },
+      },
     });
 
     return requiredRoles.some((role) => roles.some((r) => r.name === role));

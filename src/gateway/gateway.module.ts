@@ -6,11 +6,11 @@ import { KitchenModule } from '@src/modules/core-ms/kitchen/kitchen.module';
 import { NotificationModule } from '@src/modules/notification-ms/notification.module';
 import { KDSKitchenController } from './modules/kds-kitchen/kds-kitchen.controller';
 import { KitchenGatewayService } from './modules/kds-kitchen/kds-kitchen.service';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '../util/supabase/auth.module';
 import { PermissionModule } from '@src/modules/auth-ms/permission/permission.module';
 import { SharedKernelModule } from '@src/util/shared-kernel/shared-kernel.module';
-import { CompanyModule } from '../auth-ms/company/company.module';
-import { UserModule } from '../auth-ms/user/user.module';
+import { CompanyModule } from '@src/modules/auth-ms/company/company.module';
+import { UserModule } from '@src/modules/auth-ms/user/user.module';
 
 @Module({
   imports: [
