@@ -1,5 +1,10 @@
 import { SqlEntityManager } from '@mikro-orm/postgresql';
-import { FilterQuery, FindOptions } from '@mikro-orm/core';
+import {
+  AutoPath,
+  FilterQuery,
+  FindAllOptions,
+  FindOptions,
+} from '@mikro-orm/core';
 import { BaseRepository } from './base.repository';
 import { AuditLog } from '../entities/audit.entity';
 
@@ -18,9 +23,15 @@ export class AuditRepository extends BaseRepository<AuditLog> {
   async findByEntity(
     entityType: string,
     entityId: number,
-    options?: FindOptions<AuditLog>,
+    options?: Pick<
+      FindAllOptions<AuditLog>,
+      'populate' | 'orderBy' | 'limit' | 'offset'
+    >,
   ): Promise<AuditLog[]> {
-    return this.findAllEntities({ entityType, entityId }, options);
+    return this.findAllEntities({
+      where: { entityType, entityId },
+      ...options,
+    });
   }
 
   /**
@@ -33,11 +44,13 @@ export class AuditRepository extends BaseRepository<AuditLog> {
   async findByCompany(
     companyId: number,
     userId?: number,
-    options?: FindOptions<AuditLog>,
+    options?: Omit<FindOptions<AuditLog>, 'populate'> & {
+      populate?: readonly AutoPath<AuditLog, any>[];
+    },
   ): Promise<AuditLog[]> {
     const where: FilterQuery<AuditLog> = { companyId };
     if (userId) where.userId = userId;
-    return this.findAllEntities(where, options);
+    return this.findAllEntities({ where, ...options });
   }
 
   /**
@@ -46,6 +59,6 @@ export class AuditRepository extends BaseRepository<AuditLog> {
    * @returns Promise with the created AuditLog
    */
   async logAction(data: Partial<AuditLog>): Promise<AuditLog> {
-    return this.createEntity(data as any);
+    return this.createEntity({ data });
   }
 }

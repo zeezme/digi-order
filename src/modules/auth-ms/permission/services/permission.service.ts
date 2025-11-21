@@ -18,7 +18,9 @@ export class PermissionService {
     description?: string;
     permissions?: string[];
   }) {
-    return this.roleRepository.createEntity(data);
+    return this.roleRepository.createEntity({
+      data,
+    });
   }
 
   async findAllRoles() {
@@ -39,9 +41,11 @@ export class PermissionService {
       throw new ConflictException('User already has this role in this company');
     }
     return this.userRoleRepository.createEntity({
-      user: { supabaseId: userId },
-      company: companyId,
-      role: roleId,
+      data: {
+        user: { supabaseId: userId },
+        company: companyId,
+        role: roleId,
+      },
     });
   }
 
@@ -54,7 +58,7 @@ export class PermissionService {
     if (!userRole) {
       throw new NotFoundException('User role not found');
     }
-    await this.userRoleRepository.deleteEntity(userRole);
+    await this.userRoleRepository.deleteEntity({ entity: userRole });
   }
 
   async getUserRoles(userId: string, companyId: number) {
@@ -82,10 +86,10 @@ export class PermissionService {
 
     const roleIds = userRoles.map((ur) => ur.role.id);
 
-    const roles = await this.roleRepository.findAllEntities(
-      { id: { $in: roleIds } },
-      ['permissionEntities'],
-    );
+    const roles = await this.roleRepository.findAllEntities({
+      where: { id: { $in: roleIds } },
+      populate: ['permissionEntities'],
+    });
 
     const permissions = new Set<string>();
     for (const role of roles) {

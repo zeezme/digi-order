@@ -13,11 +13,14 @@ export class RoleRepository extends BaseRepository<Role> {
   }
 
   async findByName(name: RoleType): Promise<Role | null> {
-    return this.findOneBy({ name });
+    return this.findOneBy({ where: { name } });
   }
 
   async findByNameWithPermissions(name: RoleType): Promise<Role | null> {
-    return this.findOneBy({ name }, ['permissionEntities']);
+    return this.findOneBy({
+      where: { name },
+      populate: ['permissionEntities'],
+    });
   }
 }
 
@@ -32,9 +35,11 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
     companyId: number,
   ): Promise<UserRole[]> {
     return this.findAllEntities({
-      user: { supabaseId: userId },
-      company: companyId,
-      deletedAt: null,
+      where: {
+        user: { supabaseId: userId },
+        company: companyId,
+        deletedAt: null,
+      },
     });
   }
 
@@ -44,10 +49,12 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
     roleId: number,
   ): Promise<UserRole | null> {
     return this.findOneBy({
-      user: { supabaseId: userId },
-      company: companyId,
-      role: roleId,
-      deletedAt: null,
+      where: {
+        user: { supabaseId: userId },
+        company: companyId,
+        role: roleId,
+        deletedAt: null,
+      },
     });
   }
 
@@ -57,10 +64,12 @@ export class UserRoleRepository extends BaseRepository<UserRole> {
     roleId: number,
   ): Promise<boolean> {
     return this.exists({
-      user: { supabaseId: userId },
-      company: companyId,
-      role: roleId,
-      deletedAt: null,
+      where: {
+        user: { supabaseId: userId },
+        company: companyId,
+        role: roleId,
+        deletedAt: null,
+      },
     });
   }
 }
@@ -89,7 +98,7 @@ export class PermissionRepository extends BaseRepository<Permission> {
     this.setSystemAudit(true);
 
     try {
-      const existing = await this.findOneBy({ key });
+      const existing = await this.findOneBy({ where: { key } });
 
       if (existing) {
         const hasChanges = Object.entries(data).some(([field, newValue]) => {
@@ -101,11 +110,11 @@ export class PermissionRepository extends BaseRepository<Permission> {
           return { entity: existing, action: 'skipped' };
         }
 
-        const updated = await this.updateEntity(existing, data);
+        const updated = await this.updateEntity({ entity: existing, data });
         return { entity: updated, action: 'updated' };
       }
 
-      const created = await this.createEntity({ key, ...data });
+      const created = await this.createEntity({ data: { key, ...data } });
       return { entity: created, action: 'created' };
     } finally {
       this.setSystemAudit(false);

@@ -11,10 +11,10 @@ export class CompanyRepository extends BaseRepository<Company> {
   }
 
   async findBySlug(slug: string): Promise<Company | null> {
-    return this.findOneBy({ slug, deletedAt: null });
+    return this.findOneBy({ where: { slug, deletedAt: null } });
   }
 
   async findActiveCompanies(): Promise<Company[]> {
-    return this.findAllEntities({ isActive: true, deletedAt: null });
+    return this.findAllEntities({ where: { isActive: true, deletedAt: null } });
   }
 }

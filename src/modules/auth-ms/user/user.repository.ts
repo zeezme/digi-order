@@ -11,7 +11,7 @@ export class UserRepository extends BaseRepository<User> {
   }
 
   async findBySupabaseId(supabaseId: string): Promise<User | null> {
-    return this.findOneBy({ supabaseId, deletedAt: null });
+    return this.findOneBy({ where: { supabaseId, deletedAt: null } });
   }
 
   async findBySupabaseIds(ids: (number | string)[]): Promise<User[]> {
@@ -27,14 +27,16 @@ export class UserRepository extends BaseRepository<User> {
   }
 
   async findByEmail(email: string, companyId: number): Promise<User | null> {
-    return this.findOneBy({ email, companyId, deletedAt: null });
+    return this.findOneBy({ where: { email, companyId, deletedAt: null } });
   }
 
   async findActiveUsersByCompany(companyId: number): Promise<User[]> {
-    return this.findAllEntities({ companyId, isActive: true, deletedAt: null });
+    return this.findAllEntities({
+      where: { companyId, isActive: true, deletedAt: null },
+    });
   }
 
   async existsBySupabaseId(supabaseId: string): Promise<boolean> {
-    return this.exists({ supabaseId, deletedAt: null });
+    return this.exists({ where: { supabaseId, deletedAt: null } });
   }
 }

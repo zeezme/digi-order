@@ -23,16 +23,18 @@ export class KitchenWriteService {
    */
   async create(orderId: number, menuItemId: number, companyId: number) {
     const newItem = await this.kitchenItemRepository.createEntity({
-      order: orderId,
-      menuItem: menuItemId,
-      status: KitchenItemStatus.PENDING,
-      companyId,
+      data: {
+        order: orderId,
+        menuItem: menuItemId,
+        status: KitchenItemStatus.PENDING,
+        companyId,
+      },
     });
 
     const payload: KitchenItemCreatedEvent = KitchenItemCreatedSchema.parse({
       itemId: newItem.id,
-      orderId: (newItem.order as any)?.id || orderId,
-      menuItemId: (newItem.menuItem as any)?.id || menuItemId,
+      orderId: newItem.order?.id || orderId,
+      menuItemId: newItem.menuItem?.id || menuItemId,
       companyId: companyId,
       status: newItem.status,
       createdAt: newItem.createdAt,
@@ -80,7 +82,7 @@ export class KitchenWriteService {
 
     const payload: KitchenItemUpdatedEvent = KitchenItemUpdatedSchema.parse({
       itemId: updated.id,
-      orderId: (updated.order as any).id,
+      orderId: updated.order.id,
       companyId: companyId,
       oldStatus: oldStatus,
       newStatus: updated.status,

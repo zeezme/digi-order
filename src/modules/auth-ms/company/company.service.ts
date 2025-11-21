@@ -6,15 +6,17 @@ export class CompanyService {
   constructor(private readonly companyRepository: CompanyRepository) {}
 
   async create(data: { name: string; slug: string }) {
-    return this.companyRepository.createEntity(data);
+    return this.companyRepository.createEntity({ data });
   }
 
   async findAll() {
-    return this.companyRepository.findAllEntities({ deletedAt: null });
+    return this.companyRepository.findAllEntities({
+      where: { deletedAt: null },
+    });
   }
 
   async findOne(id: number) {
-    const company = await this.companyRepository.findById(id);
+    const company = await this.companyRepository.findById({ id });
     if (!company) {
       throw new NotFoundException(`Company with ID ${id} not found`);
     }
@@ -38,11 +40,11 @@ export class CompanyService {
     data: Partial<{ name: string; slug: string; isActive: boolean }>,
   ) {
     const company = await this.findOne(id);
-    return this.companyRepository.updateEntity(company, data);
+    return this.companyRepository.updateEntity({ entity: company, data });
   }
 
   async remove(id: number) {
-    const deleted = await this.companyRepository.deleteById(id);
+    const deleted = await this.companyRepository.deleteById({ id });
     if (!deleted) {
       throw new NotFoundException(`Company with ID ${id} not found`);
     }

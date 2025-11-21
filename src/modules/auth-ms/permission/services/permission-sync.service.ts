@@ -57,7 +57,7 @@ export class PermissionSyncService implements OnModuleInit {
       const allExisting = await this.permissionRepo.findAllEntities();
       for (const perm of allExisting) {
         if (!permissionKeysInCode.has(perm.key)) {
-          await this.permissionRepo.deleteEntity(perm);
+          await this.permissionRepo.deleteEntity({ entity: perm });
           deleted++;
         }
       }
@@ -100,7 +100,7 @@ export class PermissionSyncService implements OnModuleInit {
       const allExisting = await this.roleRepo.findAllEntities();
       for (const role of allExisting) {
         if (!roleNamesInCode.has(role.name)) {
-          await this.roleRepo.deleteEntity(role);
+          await this.roleRepo.deleteEntity({ entity: role });
           deleted++;
         }
       }
@@ -151,9 +151,11 @@ export class PermissionSyncService implements OnModuleInit {
     }
 
     await this.roleRepo.createEntity({
-      name,
-      description,
-      permissionEntities,
+      data: {
+        name,
+        description,
+        permissionEntities,
+      },
     });
 
     await this.roleRepo.getEntityManager().flush();

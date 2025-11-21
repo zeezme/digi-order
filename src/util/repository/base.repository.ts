@@ -10,21 +10,58 @@ import {
   helper,
   AutoPath,
   Loaded,
+  Populate,
+  FindOneOptions,
 } from '@mikro-orm/core';
 import { AuditRepository } from './audit.repository';
 
-/**
- * ### BaseRepository
- *
- * Generic repository with CRUD operations, optional audit logging and
- * **system-audit mode** for seeds / sync jobs.
- *
- * - `setSystemAudit(true)` forces `userId = SYSTEM_USER_ID` and `companyId = 0`
- * in every audit entry.
- * - All methods are fully typed – only the minimal `as any` required by MikroORM.
- *
- * @template T - Managed entity type.
- */
+interface FindAllOptions<T, P extends string = any> {
+  where?: FilterQuery<T>;
+  populate?: Populate<T, P>;
+  orderBy?: FindOptions<T>['orderBy'];
+  fields?: FindOptions<T>['fields'];
+  limit?: number;
+  offset?: number;
+}
+
+interface FindByIdOptions<T, P extends string = any> {
+  id: number | string;
+  populate?: readonly AutoPath<T, P>[];
+  fields?: FindOptions<T>['fields'];
+}
+
+interface FindOneByOptions<T, P extends string = any> {
+  where: FilterQuery<T>;
+  populate?: readonly AutoPath<T, P>[];
+  orderBy?: FindOptions<T>['orderBy'];
+  fields?: FindOptions<T>['fields'];
+}
+
+interface CreateEntityOptions<T> {
+  data: EntityData<T>;
+}
+
+interface UpdateEntityOptions<T> {
+  entity: T;
+  data: Partial<T>;
+}
+
+interface DeleteEntityOptions<T> {
+  entity: T;
+}
+
+interface DeleteByIdOptions {
+  id: number | string;
+}
+
+interface CountByOptions<T> {
+  where?: FilterQuery<T>;
+}
+
+interface ExistsOptions<T> {
+  where: FilterQuery<T>;
+}
+
 export abstract class BaseRepository<
   T extends object,
 > extends EntityRepository<T> {
@@ -39,12 +76,6 @@ export abstract class BaseRepository<
   private readonly SYSTEM_USER_ID = '0';
   private readonly SYSTEM_COMPANY_ID = 0;
 
-  /**
-   * @param em          - MikroORM `SqlEntityManager`.
-   * @param entityClass - Entity constructor.
-   * @param auditRepo   - Optional `AuditRepository` for automatic logging.
-   * @param entityType  - Entity name for audit logs (e.g. `'Permission'`).
-   */
   constructor(
     em: SqlEntityManager,
     entityClass: new () => T,
@@ -81,11 +112,6 @@ export abstract class BaseRepository<
     }
   }
 
-  /**
-   * Enable / disable system-audit mode.
-   *
-   * @param enabled - `true` to force system identifiers in audit logs.
-   */
   public setSystemAudit(enabled: boolean): void {
     this.enableSystemAudit = enabled;
   }
@@ -108,11 +134,6 @@ export abstract class BaseRepository<
     };
   }
 
-  /**
-   * Register a custom audit callback.
-   *
-   * @param callback - Called on success or error.
-   */
   public setAuditCallback(
     callback: (
       status: 'success' | 'error',
@@ -123,9 +144,6 @@ export abstract class BaseRepository<
     this.auditCallback = callback;
   }
 
-  /**
-   * Extract entity ID
-   */
   private extractEntityId(entity: T): string | number | null {
     try {
       const pk = helper(entity).getPrimaryKey();
@@ -193,91 +211,42 @@ export abstract class BaseRepository<
     return 'UnknownEntity';
   }
 
-  async findAllEntities<P extends string>(
-    where: FilterQuery<T>,
-    populate: readonly AutoPath<T, P>[],
-    options?: Omit<FindOptions<T, P>, 'populate'>,
-  ): Promise<Loaded<T, P>[]>;
+  async findAllEntities<P extends string = any>(
+    options: FindAllOptions<T, P> = {},
+  ): Promise<Loaded<T, P>[]> {
+    const { where = {}, populate = [], ...restOptions } = options;
 
-  async findAllEntities(
-    where: FilterQuery<T>,
-    options?: FindOptions<T>,
-  ): Promise<T[]>;
+    const findOptions: FindOptions<T, P> = {
+      populate: populate as any,
+      ...restOptions,
+    };
 
-  async findAllEntities(where?: FilterQuery<T>): Promise<T[]>;
-
-  async findAllEntities(
-    where: FilterQuery<T> = {},
-    populateOrOptions?: FindOptions<T> | readonly AutoPath<T, any>[],
-    extraOptions: Omit<FindOptions<T, any>, 'populate'> = {},
-  ): Promise<T[]> {
-    const options: FindOptions<T, any> = { ...extraOptions };
-
-    if (Array.isArray(populateOrOptions)) {
-      options.populate = populateOrOptions as any;
-    } else {
-      Object.assign(options, populateOrOptions ?? {});
-    }
-
-    return this.find(where, options);
+    return this.find(where, findOptions);
   }
 
-  /**
-   * Find entity by primary key.
-   *
-   * @param id - Primary key value.
-   * @returns Entity or `null`.
-   */
-  async findById(id: number | string): Promise<T | null> {
-    return this.findOne({ id } as FilterQuery<T>);
+  async findById<P extends string = any>(
+    options: FindByIdOptions<T, P>,
+  ): Promise<Loaded<T, P> | null> {
+    const { id, populate, fields } = options;
+
+    return this.findOne(
+      { id } as FilterQuery<T>,
+      { populate, fields } as FindOneOptions<T, P>,
+    );
   }
 
-  /**
-   * Find one entity by filter with full populate support.
-   *
-   * @param where    - Filter query
-   * @param populate - Array of valid relation paths (AutoPath)
-   * @param options  - Optional: orderBy, fields, etc.
-   */
-  async findOneBy<P extends string>(
-    where: FilterQuery<T>,
-    populate: readonly AutoPath<T, P>[],
-    options?: Omit<FindOptions<T, P>, 'populate'>,
-  ): Promise<T | null>;
+  async findOneBy<P extends string = any>(
+    options: FindOneByOptions<T, P>,
+  ): Promise<Loaded<T, P> | null> {
+    const { where, ...findOptions } = options;
 
-  /**
-   * Overload without populate
-   */
-  async findOneBy(
-    where: FilterQuery<T>,
-    options?: FindOptions<T>,
-  ): Promise<T | null>;
-
-  async findOneBy(
-    where: FilterQuery<T>,
-    populateOrOptions?: FindOptions<T> | readonly AutoPath<T, any>[],
-    extraOptions: Omit<FindOptions<T, any>, 'populate'> = {},
-  ): Promise<T | null> {
-    const options: FindOptions<T, any> = {};
-
-    if (Array.isArray(populateOrOptions)) {
-      options.populate = populateOrOptions as any;
-      Object.assign(options, extraOptions);
-    } else {
-      Object.assign(options, populateOrOptions ?? {}, extraOptions);
-    }
-
-    return this.findOne(where, options as any);
+    return this.findOne(where, findOptions as FindOneOptions<T, P>);
   }
 
-  /**
-   * Create and persist a new entity.
-   *
-   * @param data - Entity data.
-   * @returns Created entity.
-   */
-  async createEntity(data: EntityData<T>): Promise<T> {
+  async createEntity(options: CreateEntityOptions<T>): Promise<T> {
+    const { data } = options;
     const isSystemAudit = this.enableSystemAudit;
+
     try {
       const entity = this.create(data as RequiredEntityData<T>);
 
@@ -293,19 +262,12 @@ export abstract class BaseRepository<
       return entity;
     } catch (error) {
       await this.handleError(error as Error, 'create', { data }, isSystemAudit);
-
       throw error;
     }
   }
 
-  /**
-   * Update an existing entity.
-   *
-   * @param entity - Entity instance.
-   * @param data   - Partial data to assign.
-   * @returns Updated entity.
-   */
-  async updateEntity(entity: T, data: Partial<T>): Promise<T> {
+  async updateEntity(options: UpdateEntityOptions<T>): Promise<T> {
+    const { entity, data } = options;
     const isSystemAudit = this.enableSystemAudit;
 
     try {
@@ -326,13 +288,10 @@ export abstract class BaseRepository<
     }
   }
 
-  /**
-   * Delete a given entity.
-   *
-   * @param entity - Entity instance.
-   */
-  async deleteEntity(entity: T): Promise<void> {
+  async deleteEntity(options: DeleteEntityOptions<T>): Promise<void> {
+    const { entity } = options;
     const isSystemAudit = this.enableSystemAudit;
+
     try {
       await this.getEntityManager().removeAndFlush(entity);
 
@@ -344,23 +303,18 @@ export abstract class BaseRepository<
         { entity },
         isSystemAudit,
       );
-
       throw error;
     }
   }
 
-  /**
-   * Delete entity by primary key.
-   *
-   * @param id - Primary key.
-   * @returns `true` if deleted, `false` if not found.
-   */
-  async deleteById(id: number | string): Promise<boolean> {
+  async deleteById(options: DeleteByIdOptions): Promise<boolean> {
+    const { id } = options;
     const isSystemAudit = this.enableSystemAudit;
+
     try {
-      const entity = await this.findById(id);
+      const entity = await this.findById({ id });
       if (!entity) return false;
-      await this.deleteEntity(entity);
+      await this.deleteEntity({ entity });
       return true;
     } catch (error) {
       await this.handleError(error as Error, 'delete', { id }, isSystemAudit);
@@ -368,23 +322,13 @@ export abstract class BaseRepository<
     }
   }
 
-  /**
-   * Count entities matching a filter.
-   *
-   * @param where - Filter query.
-   * @returns Number of matching rows.
-   */
-  async countBy(where?: FilterQuery<T>): Promise<number> {
-    return this.count(where ?? {});
+  async countBy(options: CountByOptions<T> = {}): Promise<number> {
+    const { where = {} } = options;
+    return this.count(where);
   }
 
-  /**
-   * Check if at least one entity matches the filter.
-   *
-   * @param where - Filter query.
-   * @returns `true` if exists.
-   */
-  async exists(where: FilterQuery<T>): Promise<boolean> {
+  async exists(options: ExistsOptions<T>): Promise<boolean> {
+    const { where } = options;
     return (await this.count(where)) > 0;
   }
 }

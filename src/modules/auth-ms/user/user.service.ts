@@ -24,7 +24,7 @@ export class UserService {
     if (exists) {
       throw new ConflictException('User already exists');
     }
-    return this.userRepository.createEntity(data);
+    return this.userRepository.createEntity({ data });
   }
 
   async findBySupabaseId(supabaseId: string) {
@@ -46,7 +46,7 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.findById(id);
+    const user = await this.userRepository.findById({ id });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -67,11 +67,11 @@ export class UserService {
     }>,
   ) {
     const user = await this.findOne(id);
-    return this.userRepository.updateEntity(user, data);
+    return this.userRepository.updateEntity({ entity: user, data });
   }
 
   async remove(id: number) {
-    const deleted = await this.userRepository.deleteById(id);
+    const deleted = await this.userRepository.deleteById({ id });
     if (!deleted) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }

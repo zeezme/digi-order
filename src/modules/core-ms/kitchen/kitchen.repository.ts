@@ -12,19 +12,19 @@ export class KitchenItemRepository extends BaseRepository<KitchenItem> {
   }
 
   async findAllByCompany(companyId: number) {
-    return this.findAllEntities({ companyId });
+    return this.findAllEntities({ where: { companyId } });
   }
 
   async findOneByIdAndCompany(id: number, companyId: number) {
-    return this.findOneBy({ id, companyId });
+    return this.findOneBy({ where: { id, companyId } });
   }
 
   async findByOrderIdAndCompany(orderId: number, companyId: number) {
-    return this.findAllEntities({ order: orderId, companyId });
+    return this.findAllEntities({ where: { order: orderId, companyId } });
   }
 
   async findByStatusAndCompany(status: KitchenItemStatus, companyId: number) {
-    return this.findAllEntities({ status, companyId });
+    return this.findAllEntities({ where: { status, companyId } });
   }
 
   async updateStatusWithCompany(
@@ -36,7 +36,7 @@ export class KitchenItemRepository extends BaseRepository<KitchenItem> {
     if (!item) return null;
 
     item.status = status;
-    await this.updateEntity(item, { status });
+    await this.updateEntity({ data: { status }, entity: item });
     return item;
   }
 
@@ -44,7 +44,7 @@ export class KitchenItemRepository extends BaseRepository<KitchenItem> {
     const item = await this.findOneByIdAndCompany(id, companyId);
     if (!item) return false;
 
-    await this.deleteEntity(item);
+    await this.deleteEntity({ entity: item });
     return true;
   }
 }
