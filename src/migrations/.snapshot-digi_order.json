@@ -326,15 +326,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -354,24 +345,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -401,6 +374,15 @@
           "nullable": false,
           "length": 255,
           "mappedType": "string"
+        },
+        "company_id": {
+          "name": "company_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         },
         "description": {
           "name": "description",
@@ -505,20 +487,20 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
+            "deleted_at"
           ],
           "composite": false,
-          "keyName": "menu_item_company_id_index",
+          "keyName": "menu_item_deleted_at_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "deleted_at"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "menu_item_deleted_at_index",
+          "keyName": "menu_item_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -583,15 +565,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -611,24 +584,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -657,6 +612,15 @@
           "primary": false,
           "nullable": false,
           "mappedType": "text"
+        },
+        "company_id": {
+          "name": "company_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         },
         "type": {
           "name": "type",
@@ -742,20 +706,20 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
+            "deleted_at"
           ],
           "composite": false,
-          "keyName": "notification_company_id_index",
+          "keyName": "notification_deleted_at_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "deleted_at"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "notification_deleted_at_index",
+          "keyName": "notification_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -1048,15 +1012,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -1076,24 +1031,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -1123,6 +1060,15 @@
           "nullable": false,
           "length": 255,
           "mappedType": "string"
+        },
+        "company_id": {
+          "name": "company_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         },
         "is_occupied": {
           "name": "is_occupied",
@@ -1198,20 +1144,20 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
+            "deleted_at"
           ],
           "composite": false,
-          "keyName": "table_company_id_index",
+          "keyName": "table_deleted_at_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "deleted_at"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "table_deleted_at_index",
+          "keyName": "table_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -1289,15 +1235,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -1317,24 +1254,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -1357,6 +1276,15 @@
         },
         "table_id": {
           "name": "table_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "company_id": {
+          "name": "company_id",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -1477,20 +1405,20 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
+            "deleted_at"
           ],
           "composite": false,
-          "keyName": "order_company_id_index",
+          "keyName": "order_deleted_at_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "deleted_at"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "order_deleted_at_index",
+          "keyName": "order_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -1579,15 +1507,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -1607,24 +1526,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -1647,6 +1548,15 @@
         },
         "order_id": {
           "name": "order_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "company_id": {
+          "name": "company_id",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -1729,20 +1639,20 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
+            "deleted_at"
           ],
           "composite": false,
-          "keyName": "kitchen_item_company_id_index",
+          "keyName": "kitchen_item_deleted_at_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "deleted_at"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "kitchen_item_deleted_at_index",
+          "keyName": "kitchen_item_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -1841,15 +1751,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -1869,24 +1770,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -1909,6 +1792,15 @@
         },
         "order_id": {
           "name": "order_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "company_id": {
+          "name": "company_id",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -1980,20 +1872,20 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
+            "deleted_at"
           ],
           "composite": false,
-          "keyName": "order_item_company_id_index",
+          "keyName": "order_item_deleted_at_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "deleted_at"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "order_item_deleted_at_index",
+          "keyName": "order_item_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -2083,15 +1975,6 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -2112,24 +1995,6 @@
           "length": 6,
           "mappedType": "datetime"
         },
-        "created_by": {
-          "name": "created_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamptz",
@@ -2149,16 +2014,6 @@
           "nullable": true,
           "mappedType": "integer"
         },
-        "supabase_id": {
-          "name": "supabase_id",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
         "email": {
           "name": "email",
           "type": "varchar(255)",
@@ -2168,6 +2023,15 @@
           "nullable": false,
           "length": 255,
           "mappedType": "string"
+        },
+        "company_id": {
+          "name": "company_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         },
         "name": {
           "name": "name",
@@ -2215,16 +2079,6 @@
       "indexes": [
         {
           "columnNames": [
-            "company_id"
-          ],
-          "composite": false,
-          "keyName": "user_company_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
             "deleted_at"
           ],
           "composite": false,
@@ -2235,23 +2089,13 @@
         },
         {
           "columnNames": [
-            "supabase_id"
+            "company_id"
           ],
           "composite": false,
-          "keyName": "user_supabase_id_index",
+          "keyName": "user_company_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
-        },
-        {
-          "columnNames": [
-            "supabase_id"
-          ],
-          "composite": false,
-          "keyName": "user_supabase_id_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
         },
         {
           "keyName": "user_company_id_deleted_at_index",
@@ -2276,17 +2120,6 @@
           "unique": false
         },
         {
-          "keyName": "user_company_id_supabase_id_index",
-          "columnNames": [
-            "company_id",
-            "supabase_id"
-          ],
-          "composite": true,
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
           "keyName": "user_pkey",
           "columnNames": [
             "id"
@@ -2299,6 +2132,207 @@
       ],
       "checks": [],
       "foreignKeys": {},
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": false,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "password_updated_at": {
+          "name": "password_updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "must_change_password": {
+          "name": "must_change_password",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "failed_attempts": {
+          "name": "failed_attempts",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "locked_until": {
+          "name": "locked_until",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "token_version": {
+          "name": "token_version",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "refresh_token_expires_at": {
+          "name": "refresh_token_expires_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "credential",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "deleted_at"
+          ],
+          "composite": false,
+          "keyName": "credential_deleted_at_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "user_id"
+          ],
+          "composite": false,
+          "keyName": "credential_user_id_unique",
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "credential_user_id_index",
+          "columnNames": [
+            "user_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "credential_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "credential_user_id_foreign": {
+          "constraintName": "credential_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.credential",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user",
+          "updateRule": "cascade"
+        }
+      },
       "nativeEnums": {}
     },
     {
@@ -2428,7 +2462,7 @@
           ],
           "localTableName": "public.user_role",
           "referencedColumnNames": [
-            "supabase_id"
+            "id"
           ],
           "referencedTableName": "public.user",
           "updateRule": "cascade"

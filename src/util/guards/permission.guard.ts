@@ -108,7 +108,7 @@ export class PermissionGuard implements CanActivate {
   }
 
   private async hasRequiredRole(
-    userId: string,
+    userId: number,
     companyId: number,
     requiredRoles: RoleType[],
   ): Promise<boolean> {
@@ -129,7 +129,7 @@ export class PermissionGuard implements CanActivate {
   }
 
   private async hasRequiredPermissions(
-    userId: string,
+    userId: number,
     companyId: number,
     requiredPermissions: PermissionKey[],
   ): Promise<boolean> {

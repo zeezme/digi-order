@@ -16,6 +16,10 @@ export class Table extends BaseEntity {
   @Property()
   number!: string;
 
+  @Property()
+  @Index()
+  companyId!: number;
+
   @Property({ default: false })
   isOccupied: boolean = false;
 

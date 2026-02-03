@@ -1,10 +1,14 @@
 import { Company } from '@src/modules/auth-ms/company/entities/company.entity';
-import { User } from '@supabase/supabase-js';
 
+export interface AuthUser {
+  id: number;
+  email?: string;
+  name?: string;
+}
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: AuthUser;
       company?: Company;
     }
   }

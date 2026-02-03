@@ -30,6 +30,10 @@ export class Order extends BaseEntity {
   @ManyToOne(() => Table)
   table!: Table;
 
+  @Property()
+  @Index()
+  companyId!: number;
+
   @OneToOne(() => Table, (table) => table.currentOrder, { nullable: true })
   currentTable?: Table;
 

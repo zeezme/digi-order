@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { User } from '@supabase/supabase-js';
 import { Request } from 'express';
+import { AuthUser } from '../types/express';
 
 /**
  * ### Custom NestJS parameter decorator that extracts the authenticated Supabase `User`
@@ -25,7 +25,7 @@ import { Request } from 'express';
  * @returns The authenticated `User` object from Supabase, or `null` if no user is found
  */
 export const CurrentUser = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): User | null => {
+  (_data: unknown, context: ExecutionContext): AuthUser | null => {
     const request = context.switchToHttp().getRequest<Request>();
     return request.user ?? null;
   },

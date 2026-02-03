@@ -22,7 +22,6 @@ export class UserRole {
 
   @ManyToOne(() => User, {
     fieldName: 'user_id',
-    referenceColumnName: 'supabase_id',
   })
   user!: User;
 

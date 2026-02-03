@@ -21,7 +21,15 @@ export class KitchenWriteService {
    * @emits Kafka Event: 'kitchen.item.created'
    * @payload KitchenItemCreatedEvent
    */
-  async create(orderId: number, menuItemId: number, companyId: number) {
+  async create({
+    orderId,
+    menuItemId,
+    companyId,
+  }: {
+    orderId: number;
+    menuItemId: number;
+    companyId: number;
+  }) {
     const newItem = await this.kitchenItemRepository.createEntity({
       data: {
         order: orderId,

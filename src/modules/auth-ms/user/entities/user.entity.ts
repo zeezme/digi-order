@@ -4,16 +4,15 @@ import { Collection, OneToMany } from '@mikro-orm/core';
 import { UserRole } from '../../permission/entities/user-role.entity';
 
 @Entity()
-@Index({ properties: ['companyId', 'supabaseId'] })
 @Index({ properties: ['companyId', 'email'] })
 @Index({ properties: ['companyId', 'deletedAt'] })
 export class User extends BaseEntity {
-  @Property({ unique: true })
-  @Index()
-  supabaseId!: string;
-
   @Property()
   email!: string;
+
+  @Property()
+  @Index()
+  companyId!: number;
 
   @Property()
   name!: string;

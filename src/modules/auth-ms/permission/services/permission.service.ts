@@ -4,7 +4,9 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { RoleRepository, UserRoleRepository } from '../permission.repository';
-import { RoleType } from '../entities/role.entity';
+import { Role, RoleType } from '../entities/role.entity';
+import { User } from '../../user/entities/user.entity';
+import { Company } from '../../company/entities/company.entity';
 
 @Injectable()
 export class PermissionService {
@@ -31,25 +33,27 @@ export class PermissionService {
     return this.roleRepository.findByName(name);
   }
 
-  async assignRole(userId: string, companyId: number, roleId: number) {
+  async assignRole(userId: number, companyId: number, roleId: number) {
     const exists = await this.userRoleRepository.hasRole(
       userId,
       companyId,
       roleId,
     );
+
     if (exists) {
       throw new ConflictException('User already has this role in this company');
     }
+
     return this.userRoleRepository.createEntity({
       data: {
-        user: { supabaseId: userId },
-        company: companyId,
-        role: roleId,
+        user: this.userRoleRepository.connect(User, userId),
+        company: this.userRoleRepository.connect(Company, companyId),
+        role: this.userRoleRepository.connect(Role, roleId),
       },
     });
   }
 
-  async removeRole(userId: string, companyId: number, roleId: number) {
+  async removeRole(userId: number, companyId: number, roleId: number) {
     const userRole = await this.userRoleRepository.findUserRole(
       userId,
       companyId,
@@ -61,12 +65,12 @@ export class PermissionService {
     await this.userRoleRepository.deleteEntity({ entity: userRole });
   }
 
-  async getUserRoles(userId: string, companyId: number) {
+  async getUserRoles(userId: number, companyId: number) {
     return this.userRoleRepository.findByUserAndCompany(userId, companyId);
   }
 
   async hasRole(
-    userId: string,
+    userId: number,
     companyId: number,
     roleId: number,
   ): Promise<boolean> {
@@ -74,7 +78,7 @@ export class PermissionService {
   }
 
   async getUserPermissions(
-    userId: string,
+    userId: number,
     companyId: number,
   ): Promise<string[]> {
     const userRoles = await this.userRoleRepository.findByUserAndCompany(

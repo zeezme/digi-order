@@ -22,7 +22,7 @@ export class UserIdentityQueryClient {
         `[ACL] Fetching ${uniqueIds.length} profiles via internal service call.`,
       );
 
-      const profiles = await this.userService.findBySupabaseIds(uniqueIds);
+      const profiles = await this.userService.findManyByIds(uniqueIds);
 
       const profileMap = new Map<number | string, UserProfile>();
 

@@ -14,6 +14,7 @@ import {
   FindOneOptions,
 } from '@mikro-orm/core';
 import { AuditRepository } from './audit.repository';
+import { getRequestContext } from '../interceptors/context.interceptor';
 
 interface FindAllOptions<T, P extends string = any> {
   where?: FilterQuery<T>;
@@ -128,9 +129,12 @@ export abstract class BaseRepository<
       };
     }
 
+    const { userId, companyId } = getRequestContext();
+
     return {
       ...context,
-      userId: context.userId ?? context.data?.__auditContext?.userId,
+      userId: userId ?? context.userId,
+      companyId: companyId ?? context.companyId,
     };
   }
 
@@ -330,5 +334,20 @@ export abstract class BaseRepository<
   async exists(options: ExistsOptions<T>): Promise<boolean> {
     const { where } = options;
     return (await this.count(where)) > 0;
+  }
+
+  public connect<E extends object>(
+    entity: EntityName<E>,
+    value: E | number | string,
+  ): E {
+    if (typeof value === 'object') {
+      return value;
+    }
+
+    return this.getEntityManager().getReference(
+      entity,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      value as any,
+    ) as unknown as E;
   }
 }

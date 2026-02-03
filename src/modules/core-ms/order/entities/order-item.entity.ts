@@ -10,6 +10,10 @@ export class OrderItem extends BaseEntity {
   @ManyToOne(() => Order)
   order!: Order;
 
+  @Property()
+  @Index()
+  companyId!: number;
+
   @ManyToOne(() => MenuItem)
   menuItem!: MenuItem;
 

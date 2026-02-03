@@ -4,41 +4,25 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async create(data: {
-    supabaseId: string;
     email: string;
     name: string;
     companyId: number;
     phone?: string;
     avatarUrl?: string;
   }) {
-    const exists = await this.userRepository.existsBySupabaseId(
-      data.supabaseId,
-    );
+    const exists = await this.userRepository.existsByEmail(data.email);
+
     if (exists) {
       throw new ConflictException('User already exists');
     }
+
     return this.userRepository.createEntity({ data });
-  }
-
-  async findBySupabaseId(supabaseId: string) {
-    return this.userRepository.findBySupabaseId(supabaseId);
-  }
-
-  async findBySupabaseIds(ids: (number | string)[]): Promise<Partial<User>[]> {
-    const users = await this.userRepository.findBySupabaseIds(ids);
-
-    return users.map((user) => ({
-      id: user.id,
-      name: user.name,
-      companyId: user.companyId,
-    }));
   }
 
   async findByEmail(email: string, companyId: number) {
@@ -51,6 +35,12 @@ export class UserService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
+  }
+
+  async findManyByIds(ids: (number | string)[]) {
+    return this.userRepository.findAll({
+      filters: { id: { $in: ids } },
+    });
   }
 
   async findActiveByCompany(companyId: number) {
@@ -75,27 +65,5 @@ export class UserService {
     if (!deleted) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-  }
-
-  async getOrCreateFromSupabase(
-    supabaseId: string,
-    email: string,
-    companyId: number,
-    metadata?: { name?: string; phone?: string; avatarUrl?: string },
-  ) {
-    let user = await this.findBySupabaseId(supabaseId);
-
-    if (!user) {
-      user = await this.create({
-        supabaseId,
-        email,
-        name: metadata?.name || email.split('@')[0],
-        companyId,
-        phone: metadata?.phone,
-        avatarUrl: metadata?.avatarUrl,
-      });
-    }
-
-    return user;
   }
 }

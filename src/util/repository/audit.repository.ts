@@ -59,6 +59,9 @@ export class AuditRepository extends BaseRepository<AuditLog> {
    * @returns Promise with the created AuditLog
    */
   async logAction(data: Partial<AuditLog>): Promise<AuditLog> {
-    return this.createEntity({ data });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const entity = this.create(data as any);
+    await this.getEntityManager().persistAndFlush(entity);
+    return entity;
   }
 }

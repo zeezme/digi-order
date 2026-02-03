@@ -16,6 +16,10 @@ export class Notification extends BaseEntity {
   @Property({ type: 'text' })
   message!: string;
 
+  @Property()
+  @Index()
+  companyId!: number;
+
   @Property({ type: 'string' })
   type!: NotificationType;
 

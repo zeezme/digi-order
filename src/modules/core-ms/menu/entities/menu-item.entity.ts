@@ -17,6 +17,10 @@ export class MenuItem extends BaseEntity {
   @Property()
   name!: string;
 
+  @Property()
+  @Index()
+  companyId!: number;
+
   @Property({ nullable: true, type: 'text' })
   description?: string;
 
