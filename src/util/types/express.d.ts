@@ -5,11 +5,14 @@ export interface AuthUser {
   email?: string;
   name?: string;
 }
+
 declare global {
   namespace Express {
     interface Request {
       user?: AuthUser;
       company?: Company;
+      cookies: { [key: string]: string };
+      signedCookies: { [key: string]: string };
     }
   }
 }

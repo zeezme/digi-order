@@ -34,6 +34,7 @@
     "@nestjs/platform-express": "^11.1.9",
     "@supabase/supabase-js": "^2.81.1",
     "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "bcrypt": "^6.0.0",
     "kafkajs": "^2.2.4",
     "reflect-metadata": "^0.2.2",
